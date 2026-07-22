@@ -1,0 +1,178 @@
+@namespace DarkRPReborn.Addons
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using Sandbox
+@using Sandbox.UI
+@inherits PanelComponent
+
+@*
+  Shared renderer of the addon UI framework (contract v3). One instance per
+  screen: draws the active addon menu + the HUD card stack, default-styled
+  like the game (navy / violet / Outfit) with per-menu Accent/Background
+  overrides. Clicks go back to the host via a static RPC; only the player the
+  menu was sent to can trigger its handlers (checked host-side).
+*@
+
+<root>
+	@if ( _menu != null )
+	{
+		<div class="rm-overlay" onclick=@(() => Click( "__close" ))>
+			<div class="rm-window" style="width: @(_menu.Width)px; @(string.IsNullOrEmpty( _menu.Background ) ? "" : $"background-color: {_menu.Background};")" onclick=@(() => { })>
+				<div class="rm-title" style="@AccentCss( "border-bottom-color" )">
+					<i class="icon">@_menu.Icon</i>
+					<span>@_menu.Title</span>
+					<div class="rm-close" onclick=@(() => Click( "__close" ))><i class="icon">close</i></div>
+				</div>
+				<div class="rm-body">
+					@foreach ( var w in _menu.Widgets )
+					{
+						@switch ( w.T )
+						{
+							case "header":
+								<div class="rm-header" style="@AccentCss( "color" )">@w.A</div>
+								break;
+							case "text":
+								<div class="rm-text">@w.A</div>
+								break;
+							case "kv":
+								<div class="rm-kv"><span class="rm-k">@w.A</span><span class="rm-v">@w.B</span></div>
+								break;
+							case "divider":
+								<div class="rm-divider"></div>
+								break;
+							case "table":
+								<div class="rm-table">
+									<div class="rm-tr rm-th">
+										@foreach ( var c in w.Cols ?? new List<string>() ) { <span>@c</span> }
+									</div>
+									@foreach ( var row in w.Rows ?? new List<List<string>>() )
+									{
+										<div class="rm-tr">
+											@foreach ( var cell in row ) { <span>@cell</span> }
+										</div>
+									}
+								</div>
+								break;
+							case "input":
+								{
+									var binder = BinderFor( w.Id );
+									<div class="rm-input">
+										<span class="rm-k">@w.A</span>
+										<TextEntry Value:bind=@binder.Value Placeholder=@w.B />
+									</div>
+								}
+								break;
+							case "button":
+								{
+									var id = w.Id;
+									<div class="rm-btn @(w.Style?.ToLowerInvariant())" style="@(w.Style == "Primary" ? AccentCss( "background-color" ) : "")" onclick=@(() => Click( id ))>@w.A</div>
+								}
+								break;
+						}
+					}
+				</div>
+			</div>
+		</div>
+	}
+
+	<div class="rm-hud">
+		@foreach ( var card in _hudCards.Values )
+		{
+			<div class="rm-card" style="@(string.IsNullOrEmpty( card.Accent ) ? "" : $"border-left-color: {card.Accent};")">
+				<div class="rm-card-title">@card.Title</div>
+				@foreach ( var line in card.Lines ) { <div class="rm-card-line">@line</div> }
+			</div>
+		}
+	</div>
+</root>
+
+@code
+{
+	public static RebornMenuHost Instance { get; private set; }
+
+	RebornUiMenuDto _menu;
+	readonly Dictionary<string, RebornUiHudDto> _hudCards = new( StringComparer.Ordinal );
+	readonly List<InputBinder> _binders = new();
+	int _version;
+
+	sealed class InputBinder
+	{
+		public string Id;
+		public string Value { get; set; } = "";
+	}
+
+	protected override void OnStart() => Instance = this;
+	protected override void OnDestroy() { if ( Instance == this ) Instance = null; }
+
+	string AccentCss( string prop )
+	{
+		var accent = _menu?.Accent;
+		return string.IsNullOrEmpty( accent ) ? "" : $"{prop}: {accent};";
+	}
+
+	InputBinder BinderFor( string id )
+	{
+		var b = _binders.FirstOrDefault( x => x.Id == id );
+		if ( b == null ) { b = new InputBinder { Id = id }; _binders.Add( b ); }
+		return b;
+	}
+
+	/// <summary>Payload entry, shared by the networked path (RPC below) and the
+	/// Dev Kit's direct call.</summary>
+	public void Apply( string kind, string json )
+	{
+		try
+		{
+			switch ( kind )
+			{
+				case "menu":
+					_menu = Json.Deserialize<RebornUiMenuDto>( json );
+					_binders.Clear();
+					break;
+				case "menu_close":
+					if ( _menu?.Id == json ) { _menu = null; _binders.Clear(); }
+					break;
+				case "hud":
+					var card = Json.Deserialize<RebornUiHudDto>( json );
+					if ( card?.Id != null ) _hudCards[card.Id] = card;
+					break;
+				case "hud_remove":
+					_hudCards.Remove( json ?? "" );
+					break;
+			}
+			_version++;
+			StateHasChanged();
+		}
+		catch ( Exception e ) { Log.Warning( $"[csaddons] ui payload '{kind}' failed: {e.Message}" ); }
+	}
+
+	void Click( string buttonId )
+	{
+		var menu = _menu;
+		if ( menu == null ) return;
+		var inputs = _binders.ToDictionary( b => b.Id, b => b.Value ?? "" );
+		if ( buttonId == "__close" ) { _menu = null; _binders.Clear(); _version++; StateHasChanged(); }
+		UiClickRpc( menu.Id, buttonId, Json.Serialize( inputs ) );
+	}
+
+	/// <summary>Host -> one player's screen (sender filters the recipient).</summary>
+	[Rpc.Broadcast]
+	public static void UiRpc( string kind, string json )
+	{
+		Instance?.Apply( kind, json );
+	}
+
+	/// <summary>Player's screen -> host. The caller identity is resolved
+	/// host-side from the RPC, never trusted from the payload.</summary>
+	[Rpc.Host]
+	public static void UiClickRpc( string menuId, string buttonId, string inputsJson )
+	{
+		var caller = Rpc.Caller?.SteamId.ToString() ?? "0";
+		Dictionary<string, string> inputs = null;
+		try { inputs = Json.Deserialize<Dictionary<string, string>>( inputsJson ); } catch { }
+		Reborn.HandleMenuClick( caller, menuId, buttonId, inputs ?? new Dictionary<string, string>() );
+	}
+
+	protected override int BuildHash() => _version;
+}

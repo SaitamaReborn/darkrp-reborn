@@ -11,10 +11,10 @@ namespace DarkRPReborn.Addons;
 /// binds a simulator - addon code is identical in both. PUBLIC contract file,
 /// mirrored verbatim in the community Dev Kit: no private game types in here.
 /// </summary>
-public static class Reborn
+public static partial class Reborn
 {
 	/// <summary>Contract version. Bumped when the addon-facing API grows.</summary>
-	public const int ApiVersion = 2;
+	public const int ApiVersion = 3;
 
 	/// <summary>Bound by <see cref="RebornAddonSystem"/> at boot. Null until then.</summary>
 	public static RebornHost Host { get; internal set; }
@@ -268,4 +268,8 @@ public abstract class RebornHost : Component
 
 	/// <summary>See <see cref="Reborn.RegisterItem"/>. Null = success.</summary>
 	public abstract string RegisterItem( RebornItemSpec spec );
+
+	/// <summary>Transport for the addon UI framework: deliver a payload to ONE
+	/// player's screen. Kinds: "menu", "menu_close", "hud", "hud_remove".</summary>
+	public abstract void SendUi( IRebornPlayer target, string kind, string json );
 }

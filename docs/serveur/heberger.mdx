@@ -60,7 +60,13 @@ Ne modifiez jamais les fichiers du gamemode lui-même : tout se personnalise par
 
 ## Devenir admin sur son propre serveur
 
-Le **premier joueur qui se connecte** à un serveur sans staff reçoit automatiquement le rang SuperAdmin (failsafe propriétaire). Ensuite :
+Le staff se gère via **`admins.json`** (créé automatiquement dans le dossier `data/` du serveur) :
+
+```json
+{ "Admins": [76561198000000000], "Moderators": [] }
+```
+
+Posez votre SteamID64 dans `Admins` par SFTP puis redémarrez — ou faites-le en jeu ensuite :
 
 - `/admin add <steamid64>` en jeu, ou
 - éditez `admins.json` puis redémarrez.

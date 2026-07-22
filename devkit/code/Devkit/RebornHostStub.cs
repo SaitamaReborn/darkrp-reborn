@@ -51,6 +51,13 @@ public sealed class RebornHostStub : RebornHost
 		return null;
 	}
 
+	public override void SendUi( IRebornPlayer target, string kind, string json )
+	{
+		// Same renderer as the real game, driven directly (single machine).
+		RebornMenuHost.Instance?.Apply( kind, json );
+		if ( kind == "menu" ) DevkitConsole.Push( $"[ui] menu shown to {target.Name}" );
+	}
+
 	readonly List<string> _jobs = new();
 	readonly List<string> _items = new();
 

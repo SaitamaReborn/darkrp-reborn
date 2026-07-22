@@ -24,6 +24,7 @@ public sealed class DevkitWorld : Component
 		ui.NetworkMode = NetworkMode.Never;
 		ui.Components.Create<ScreenPanel>();
 		ui.Components.Create<DevkitConsole>();
+		ui.Components.Create<RebornMenuHost>();
 
 		DevkitConsole.Push( "DarkRP Reborn - Dev Kit" );
 		DevkitConsole.Push( "Your C# addon runs here against a simulated server." );

@@ -1,15 +1,15 @@
 ---
-title: "Addons C# : limites du système (v2)"
-description: "Le contrat v2 a levé la plupart des limites v1. Voici ce qui reste fermé, et pourquoi."
+title: "Addons C# : limites du système (v3)"
+description: "Le contrat v3 ouvre l'UI, le HTTP et le stockage. Voici le peu qui reste fermé, et pourquoi."
 ---
 
-Le contrat **v2** a ouvert la majorité de ce qui manquait en v1 : téléportation,
-vie, changement de métier, items, argent fixé, spawn de props, et surtout
-**création de métiers et d'items au runtime** (ils apparaissent dans le F4 et
-l'inventaire comme les natifs). Il reste quelques limites — chacune a une vraie
-raison.
+Le contrat **v3** ouvre quasiment tout : en plus des pouvoirs v2 (téléport,
+vie, métiers, items, argent, props, création de métiers/items runtime), les
+addons ont maintenant **leur UI** (menus fenêtrés + cartes HUD, DA du jeu par
+défaut et personnalisable), **le HTTP** (domaine whitelisté à l'intégration) et
+**leur propre stockage par clé**. Le peu qui reste fermé a une vraie raison.
 
-## Ouvert en v2 ✓
+## Ouvert en v2 et v3 ✓
 
 | Avant (v1) | Maintenant (v2) |
 |---|---|
@@ -17,6 +17,9 @@ raison.
 | Pas de création d'items | `Reborn.RegisterItem( new RebornItemSpec {...} )` + `p.GiveItem( id, n )` |
 | Pas de téléportation / vie / métier / argent fixé | `p.Teleport()`, `p.SetHealth()`, `p.TrySetJob()`, `p.SetMoney()` + `p.Position`, `p.Health` |
 | Pas de spawn de props via le contrat | `Reborn.SpawnProp( model, pos, yaw, Ident )` |
+| Pas d'UI custom | **v3** : `RebornMenu` (fenêtres, tables, inputs, boutons) + `ShowHudCard` — DA du jeu par défaut, `Accent`/`Background` overridables |
+| Pas de HTTP | **v3** : `Reborn.HttpGetAsync`/`HttpPostJsonAsync` — domaine whitelisté à l'intégration |
+| Une seule sauvegarde par addon | **v3** : `SaveData( Ident, clé, json )` — votre base à vous, par clé |
 
 `TrySetJob` respecte les règles normales du jeu (postes complets, métiers à
 vote) : un addon ne contourne pas un vote de la ville.
@@ -27,9 +30,8 @@ vote) : un addon ne contourne pas un vote de la ville.
 |---|---|
 | Bloquer / modifier le chat | Le chat est un broadcast direct pair-à-pair (choix d'architecture éprouvé sur serveur dédié) : le message est déjà chez tout le monde quand le serveur le voit. Un veto exigerait de réarchitecturer le chat — à l'étude, pas pris à la légère. |
 | Annuler un événement | Les événements sont des notifications (pas de « prevent default »). Le veto chat/dégâts fait partie du même chantier. |
-| UI custom / menus / HUD côté client | Les addons tournent côté serveur uniquement. L'UI client d'addon est LE chantier v3. En attendant : `Notify`, `Chat`, `Broadcast`. |
-| Requêtes HTTP | Refusé en revue — et de toute façon gaté par la whitelist HTTP du moteur. Un besoin légitime (webhook Discord…) peut être whitelisté au cas par cas : demandez. |
-| Accès aux bases de données du jeu | **Promesse de sécurité du système**, pas un manque : le contrat ne les exposera jamais. Votre persistance = `SaveData`/`LoadData`. |
+| Razor/HTML libre côté client | L'UI d'addon passe par le framework `RebornMenu` (widgets riches, DA cohérente) — du razor arbitraire embarqué par addon reste fermé (sécurité + cohérence visuelle). Un widget manque ? Demandez-le, le framework grandit. |
+| Accès aux bases de données du jeu | **Promesse de sécurité du système**, pas un manque : c'est l'argument « créez sans accès à nos BDD » vendu aux créateurs. Chaque addon a SA base (`SaveData` par clé). |
 | Réflexion sur les types internes / classes privées du jeu | Contrat public + API s&box standard uniquement (critère n°1 de la revue). |
 | Modifier les fichiers du contrat | Refusé d'office. |
 | Masquer une commande du jeu | Priorité fixe : natif > addons Lua > addons C#. |
@@ -45,13 +47,14 @@ vote) : un addon ne contourne pas un vote de la ville.
   joueurs (réalité s&box). Pour du code à protéger ou à vendre, le canal Lua
   serveur est le bon choix — voir
   [Vendre son addon](/addons/csharp-livrer#vendre-son-addon).
-- **Le contrat est versionné** (`Reborn.ApiVersion`, actuellement 2) : toute
+- **Le contrat est versionné** (`Reborn.ApiVersion`, actuellement 3) : toute
   évolution cassante serait annoncée avec sa migration.
 
-## Le chantier v3
+## Le chantier v4
 
-Dans l'ordre : UI client d'addon, chat/dégâts annulables, monde simulé dans le
-Dev Kit. Dites-nous ce qui vous bloque en premier.
+Dans l'ordre : chat/dégâts annulables (refonte du pipeline chat), monde simulé
+dans le Dev Kit, nouveaux widgets UI à la demande. Dites-nous ce qui vous
+bloque en premier.
 
 <Note>
 Côté Lua, les limites du bac à sable (CPU, disque, API) sont documentées sur

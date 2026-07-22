@@ -54,4 +54,10 @@ Never edit the gamemode files themselves: everything is customized through `data
 
 ## Becoming admin on your own server
 
-The **first player to join** a server with no staff automatically receives SuperAdmin (owner failsafe). After that: `/admin add <steamid64>` in game, or edit `admins.json` and restart.
+Staff is managed through **`admins.json`** (created automatically in the server's `data/` folder):
+
+```json
+{ "Admins": [76561198000000000], "Moderators": [] }
+```
+
+Put your SteamID64 in `Admins` over SFTP and restart — or promote in game afterwards with `/admin add <steamid64>` (persisted, no redeploy needed).

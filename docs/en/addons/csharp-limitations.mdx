@@ -1,14 +1,15 @@
 ---
-title: "C# addons: system limitations (v2)"
-description: "Contract v2 lifted most of the v1 limits. Here is what stays closed, and why."
+title: "C# addons: system limitations (v3)"
+description: "Contract v3 opens UI, HTTP and storage. Here is the little that stays closed, and why."
 ---
 
-Contract **v2** opened most of what v1 lacked: teleport, health, job switching,
-items, exact money, prop spawning, and above all **runtime job and item
-creation** (they show up in the F4 menu and the inventory like built-in ones).
-A few limits remain — each has a real reason.
+Contract **v3** opens nearly everything: on top of the v2 powers (teleport,
+health, jobs, items, money, props, runtime job/item creation), addons now have
+**their own UI** (windowed menus + HUD cards, game design by default and
+customizable), **HTTP** (domain allowlisted at integration) and **their own
+keyed storage**. The little that stays closed has a real reason.
 
-## Opened in v2 ✓
+## Opened in v2 and v3 ✓
 
 | Before (v1) | Now (v2) |
 |---|---|
@@ -16,6 +17,9 @@ A few limits remain — each has a real reason.
 | No item creation | `Reborn.RegisterItem( new RebornItemSpec {...} )` + `p.GiveItem( id, n )` |
 | No teleport / health / job / exact money | `p.Teleport()`, `p.SetHealth()`, `p.TrySetJob()`, `p.SetMoney()` + `p.Position`, `p.Health` |
 | No prop spawning through the contract | `Reborn.SpawnProp( model, pos, yaw, Ident )` |
+| No custom UI | **v3**: `RebornMenu` (windows, tables, inputs, buttons) + `ShowHudCard` — game design by default, `Accent`/`Background` overridable |
+| No HTTP | **v3**: `Reborn.HttpGetAsync`/`HttpPostJsonAsync` — domain allowlisted at integration |
+| One save blob per addon | **v3**: `SaveData( Ident, key, json )` — your own keyed database |
 
 `TrySetJob` follows the game's normal rules (full jobs, vote-gated jobs): an
 addon cannot bypass a city vote.
@@ -26,9 +30,8 @@ addon cannot bypass a city vote.
 |---|---|
 | Block / modify chat | Chat is a direct peer-to-peer broadcast (a battle-tested dedicated-server design): the message has reached everyone by the time the server sees it. A veto requires re-architecting chat — under consideration, not taken lightly. |
 | Cancel any event | Events are notifications (no "prevent default"). Chat/damage veto belongs to the same work. |
-| Custom client UI / menus / HUD | Addons run server side only. Client addon UI is THE v3 work item. Meanwhile: `Notify`, `Chat`, `Broadcast`. |
-| HTTP requests | Rejected in review — and gated by the engine's HTTP allowlist anyway. A legitimate need (Discord webhook…) can be allowlisted case by case: ask. |
-| Access to the game's databases | A **security promise of the system**, not a gap: the contract will never expose them. Your persistence is `SaveData`/`LoadData`. |
+| Arbitrary client-side razor/HTML | Addon UI goes through the `RebornMenu` framework (rich widgets, consistent design) — addon-shipped arbitrary razor stays closed (security + visual coherence). Missing a widget? Ask, the framework grows. |
+| Access to the game's databases | A **security promise of the system**, not a gap: it is the "create without access to our databases" pitch sold to creators. Every addon has ITS OWN keyed database (`SaveData`). |
 | Reflection into internals / private game classes | Public contract + standard s&box API only (review criterion #1). |
 | Modifying the contract files | Rejected outright. |
 | Shadowing a built-in command | Fixed priority: native > Lua addons > C# addons. |
@@ -44,13 +47,13 @@ addon cannot bypass a city vote.
   players (s&box reality). For code you want to protect or sell, the
   server-side Lua channel is the right choice — see
   [Selling your addon](/en/addons/csharp-shipping#selling-your-addon).
-- **The contract is versioned** (`Reborn.ApiVersion`, currently 2): any breaking
+- **The contract is versioned** (`Reborn.ApiVersion`, currently 3): any breaking
   change would be announced with its migration.
 
-## The v3 work
+## The v4 work
 
-In order: client addon UI, cancellable chat/damage, a simulated world in the
-Dev Kit. Tell us what blocks you first.
+In order: cancellable chat/damage (chat pipeline rework), a simulated world in
+the Dev Kit, new UI widgets on demand. Tell us what blocks you first.
 
 <Note>
 On the Lua side, the sandbox limits (CPU, disk, API) are documented on

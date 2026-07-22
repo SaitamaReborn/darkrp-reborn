@@ -105,7 +105,44 @@ p.Chat( "Ligne privée dans son chat" );
 l'économie (gate host + garde-fous). Aucun addon ne peut créer d'argent côté
 client.
 
-## Règles et limites (v2)
+## UI d'addon : menus et cartes HUD (v3)
+
+Décrivez l'interface, le jeu la rend **avec sa DA** (fenêtre navy, accent
+violet, police du jeu) — ou personnalisez `Accent`/`Background` par menu. Les
+clics reviennent à VOS handlers côté serveur ; le Dev Kit rend les menus pour
+de vrai.
+
+```csharp
+var menu = new RebornMenu( "Bourse" ) { Icon = "trending_up" };
+// menu.Accent = "#2ecc71";               // override optionnel de la DA
+menu.Header( "Cours" )
+    .Table( new[]{ "Action", "Prix" }, cours )
+    .Input( "qty", "Quantité", "10" )
+    .Button( "buy", "Acheter", ( p, inputs ) => Acheter( p, inputs["qty"] ) )
+    .Button( "cancel", "Fermer", ( p, _ ) => Reborn.CloseMenu( p, menu ), RebornButtonStyle.Ghost );
+Reborn.ShowMenu( player, menu );
+
+// Carte HUD persistante (coin haut-droit), rafraîchie par id
+Reborn.ShowHudCard( player, "folio", "Portefeuille", lignes );
+Reborn.RemoveHudCard( player, "folio" );
+```
+
+Widgets : `Header`, `Text`, `KeyValue`, `Divider`, `Table`, `Input`, `Button`
+(Primary/Danger/Ghost). L'exemple complet est `addons/example-stock-market/`.
+
+## HTTP et stockage par clé (v3)
+
+```csharp
+// HTTP côté serveur - votre domaine est whitelisté à l'intégration (demandez-le)
+string body = await Reborn.HttpGetAsync( "https://api.exemple.com/cours" );
+string resp = await Reborn.HttpPostJsonAsync( url, json );
+
+// Votre base à vous : un blob JSON par clé, sandboxé par addon
+Reborn.SaveData( Ident, "portefeuilles", json );
+string data = Reborn.LoadData( Ident, "portefeuilles" );
+```
+
+## Règles et limites (v3)
 
 - **Serveur uniquement** : pas d'UI côté client ni de RPC custom. Pour un
   retour visuel, utilisez `Notify`/`Chat`. Le détail de ce qui reste fermé (et

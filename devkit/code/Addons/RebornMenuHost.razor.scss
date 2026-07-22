@@ -1,0 +1,164 @@
+// Addon UI framework renderer - the game's design language by default (navy
+// surface, violet accent, Outfit). Menus can override accent/background via
+// their spec; everything else stays consistent with the native menus.
+RebornMenuHost {
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+	pointer-events: none;
+	z-index: 850;
+	font-family: "Outfit", "Inter", "Roboto", sans-serif;
+
+	.rm-overlay {
+		position: absolute;
+		top: 0; left: 0; right: 0; bottom: 0;
+		pointer-events: all;
+		background-color: rgba( 8, 10, 30, 0.55 );
+		align-items: center;
+		justify-content: center;
+	}
+
+	.rm-window {
+		flex-direction: column;
+		max-width: 90%;
+		max-height: 82%;
+		background-color: #101528;
+		border: 1px solid rgba( 255, 255, 255, 0.12 );
+		border-radius: 14px;
+		box-shadow: 0 24px 80px rgba( 0, 0, 0, 0.55 );
+		overflow: hidden;
+	}
+
+	.rm-title {
+		flex-direction: row;
+		align-items: center;
+		gap: 12px;
+		padding: 16px 20px;
+		border-bottom: 2px solid #6462f2;
+
+		.icon { font-size: 22px; color: rgba( 255, 255, 255, 0.75 ); }
+		span {
+			font-size: 19px;
+			font-weight: 800;
+			letter-spacing: 1.5px;
+			text-transform: uppercase;
+			color: #ffffff;
+		}
+	}
+	.rm-close {
+		margin-left: auto;
+		padding: 4px;
+		border-radius: 8px;
+		cursor: pointer;
+		.icon { font-size: 20px; color: rgba( 255, 255, 255, 0.5 ); }
+		&:hover { background-color: rgba( 255, 255, 255, 0.08 ); .icon { color: #ffffff; } }
+	}
+
+	.rm-body {
+		flex-direction: column;
+		gap: 10px;
+		padding: 18px 20px;
+		overflow-y: scroll;
+	}
+
+	.rm-header {
+		font-size: 13px;
+		font-weight: 700;
+		letter-spacing: 2px;
+		text-transform: uppercase;
+		color: #6462f2;
+		margin-top: 6px;
+	}
+	.rm-text { font-size: 15px; color: rgba( 235, 240, 255, 0.85 ); }
+	.rm-divider { height: 1px; background-color: rgba( 255, 255, 255, 0.10 ); margin: 6px 0; }
+
+	.rm-kv {
+		flex-direction: row;
+		align-items: center;
+		padding: 8px 12px;
+		border-radius: 8px;
+		background-color: rgba( 255, 255, 255, 0.04 );
+		.rm-k { font-size: 14px; color: rgba( 255, 255, 255, 0.6 ); }
+		.rm-v { margin-left: auto; font-size: 15px; font-weight: 700; color: #ffffff; }
+	}
+
+	.rm-table {
+		flex-direction: column;
+		border: 1px solid rgba( 255, 255, 255, 0.10 );
+		border-radius: 10px;
+		overflow: hidden;
+	}
+	.rm-tr {
+		flex-direction: row;
+		padding: 8px 12px;
+		span { flex-grow: 1; flex-basis: 0; font-size: 14px; color: rgba( 235, 240, 255, 0.85 ); }
+		&:nth-child( even ) { background-color: rgba( 255, 255, 255, 0.03 ); }
+	}
+	.rm-th {
+		background-color: rgba( 100, 98, 242, 0.14 );
+		span { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba( 255, 255, 255, 0.7 ); }
+	}
+
+	.rm-input {
+		flex-direction: row;
+		align-items: center;
+		gap: 12px;
+		.rm-k { font-size: 14px; color: rgba( 255, 255, 255, 0.6 ); }
+		TextEntry {
+			flex-grow: 1;
+			height: 36px;
+			padding: 0 12px;
+			border-radius: 8px;
+			background-color: rgba( 255, 255, 255, 0.06 );
+			border: 1px solid rgba( 255, 255, 255, 0.14 );
+			font-size: 15px;
+			color: #ffffff;
+			&:focus { border-color: #6462f2; }
+		}
+	}
+
+	.rm-btn {
+		align-self: flex-start;
+		padding: 10px 22px;
+		border-radius: 10px;
+		font-size: 15px;
+		font-weight: 700;
+		color: #ffffff;
+		cursor: pointer;
+		background-color: #6462f2;
+		transition: transform 0.12s ease, background-color 0.12s ease;
+
+		&:hover { transform: translateY( -1px ); }
+		&.danger { background-color: #e5484d; }
+		&.ghost {
+			background-color: rgba( 255, 255, 255, 0.06 );
+			border: 1px solid rgba( 255, 255, 255, 0.16 );
+		}
+	}
+
+	// ===== HUD card stack (top-right) =====
+	.rm-hud {
+		position: absolute;
+		top: 90px; right: 18px;
+		flex-direction: column;
+		gap: 10px;
+		pointer-events: none;
+	}
+	.rm-card {
+		flex-direction: column;
+		gap: 3px;
+		min-width: 200px;
+		padding: 10px 14px;
+		border-radius: 10px;
+		background-color: rgba( 16, 21, 40, 0.92 );
+		border: 1px solid rgba( 255, 255, 255, 0.10 );
+		border-left: 3px solid #6462f2;
+	}
+	.rm-card-title {
+		font-size: 12px;
+		font-weight: 800;
+		letter-spacing: 1.4px;
+		text-transform: uppercase;
+		color: rgba( 255, 255, 255, 0.65 );
+	}
+	.rm-card-line { font-size: 14px; font-weight: 600; color: #ffffff; }
+}
