@@ -1,8 +1,8 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "DarkRP Reborn SDK",
-  "description": "Créez votre serveur et vos addons Lua pour DarkRP Reborn (s&box).",
+  "name": "DarkRP Reborn",
+  "description": "Le roleplay urbain nouvelle génération sur s&box. Créez, testez et vendez vos addons — sans le code source du jeu.",
   "colors": {
     "primary": "#8a38f5",
     "light": "#b57bff",
@@ -177,7 +177,20 @@
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/lucaskacem/darkrp-reborn-sdk"
+      "github": "https://github.com/SaitamaReborn/darkrp-reborn"
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/SaitamaReborn/darkrp-reborn"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Play",
+      "href": "https://sbox.game/rebornstudio/cityliferp"
     }
   }
 }

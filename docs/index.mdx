@@ -1,85 +1,73 @@
 ---
-title: "DarkRP Reborn SDK"
-description: "Migrez votre serveur Garry's Mod vers s&box en quelques minutes. Addons, jobs, base de données, HUD : tout suit."
+title: "DarkRP Reborn"
+description: "Le roleplay urbain nouvelle génération sur s&box — et son système d'addons : créez, testez dans l'éditeur, publiez, et même vendez."
 ---
 
-## Votre serveur GMod, sur GMod 2, en quelques minutes
+## Le roleplay urbain nouvelle génération
 
-Vous avez passé des années à construire votre serveur DarkRP, SCP-RP ou MilitaryRP sur Garry's Mod. **Ne le laissez pas mourir avec GMod 1.** Une commande, et tout votre serveur passe sur [s&box](https://sbox.game) :
+Une ville vivante, **29 métiers**, une économie persistante, **10 langues** — DarkRP Reborn est l'héritier spirituel de DarkRP, reconstruit de zéro sur [s&box](https://sbox.game), le moteur Source 2 de Facepunch.
+
+<CardGroup cols={2}>
+	<Card title="Jouer à DarkRP Reborn" icon="gamepad" href="https://sbox.game/rebornstudio/cityliferp">
+		Le jeu, gratuit sur s&box. Rejoignez le serveur officiel et la communauté.
+	</Card>
+	<Card title="Le dépôt GitHub" icon="github" href="https://github.com/SaitamaReborn/darkrp-reborn">
+		Dev Kit, templates, addons communautaires : la partie ouverte du projet.
+	</Card>
+</CardGroup>
+
+## Créez des addons — et vendez-les si vous voulez
+
+Le système d'addons est pensé pour que **n'importe qui puisse étendre le jeu sans jamais accéder à notre code source ni à nos bases de données** : vous codez contre un contrat d'API public, isolé par design. Votre addon reste le vôtre — crédité en jeu, et vendable si c'est votre modèle.
+
+<CardGroup cols={3}>
+	<Card title="Addons C# (Dev Kit)" icon="cubes" href="/addons/csharp-demarrage">
+		Le modèle natif s&box : ouvrez le Dev Kit dans l'éditeur, codez, testez sur un serveur simulé. Intégré au jeu après revue.
+	</Card>
+	<Card title="Addons Lua (GMod)" icon="code" href="/addons/demarrage">
+		La syntaxe GLua de Garry's Mod (`hook.Add`, `DarkRP.createJob`…), déposée sur un serveur, rechargeable à chaud.
+	</Card>
+	<Card title="Vendre son addon" icon="coins" href="/addons/csharp-livrer#vendre-son-addon">
+		Gratuit et crédité, ou payant en vente directe : les deux canaux expliqués honnêtement.
+	</Card>
+</CardGroup>
+
+Votre premier addon C#, en cinq minutes :
+
+```csharp
+public sealed class MonAddon : RebornAddon
+{
+	public override string Ident => "mon-addon";
+	public override string Name => "Mon premier addon";
+
+	public override void OnAddonLoaded()
+	{
+		RebornEvents.PlayerJoined += p => p.Chat( $"Bonjour {p.Name} !" );
+		Reborn.RegisterChatCommand( "salut", "Dit bonjour", ( player, args ) =>
+			player.Notify( "Salut !", $"Tu as {player.Money}$ en poche." ), Ident );
+	}
+}
+```
+
+Aucun enregistrement : chaque classe dérivée de `RebornAddon` est découverte et chargée automatiquement, côté serveur. Le même code tourne dans le simulateur du Dev Kit et en production. [Démarrer maintenant →](/addons/csharp-demarrage)
+
+## Montez votre serveur
+
+<CardGroup cols={2}>
+	<Card title="Héberger un serveur" icon="server" href="/serveur/heberger">
+		Un serveur dédié DarkRP Reborn en ~15 minutes, chez Physgun ou chez vous. Configuration, mises à jour, dépannage.
+	</Card>
+	<Card title="Venir de Garry's Mod" icon="rocket" href="/compat/migration">
+		**Une commande** migre tout votre serveur GMod : addons, jobs, économie, base de données, modèles, HUD. 55/72 addons d'un vrai serveur chargés tels quels lors du test public.
+	</Card>
+</CardGroup>
 
 ```bash
 python3 reborn_migrate.py "C:/serveurs/garrysmod"
 ```
 
-<Card title="Migrer tout mon serveur GMod maintenant" icon="rocket" href="/compat/migration" horizontal>
-	Addons, jobs, économie, base de données, modèles, HUD : l'outil convertit tout, fusionne ce qui doit l'être, et vous remet un rapport clair. Vos joueurs retrouvent LEUR serveur.
-</Card>
-
-<CardGroup cols={3}>
-	<Card title="55/72" icon="circle-check">
-		addons d'un vrai serveur chargés tels quels lors du test public (suite luctus + gamemode complet)
-	</Card>
-	<Card title="1 commande" icon="terminal">
-		inventaire, conversion, compat, rapport, script de déploiement : 9 étapes automatiques
-	</Card>
-	<Card title="HUD 1:1" icon="gauge-high">
-		votre HUD custom GMod s'affiche nativement, sans le recoder
-	</Card>
-</CardGroup>
-
-## Et ensuite, tout ce qu'il faut pour durer
-
-**DarkRP Reborn** est le roleplay urbain nouvelle génération sur s&box, l'héritier de Garry's Mod par Facepunch. Le SDK vous donne :
-
-<CardGroup cols={2}>
-	<Card title="Héberger votre serveur" icon="server" href="/serveur/heberger">
-		Un serveur dédié DarkRP Reborn en ~15 minutes, chez Physgun ou chez vous.
-	</Card>
-	<Card title="Créer des addons en C# (Dev Kit)" icon="cubes" href="/addons/csharp-demarrage">
-		Le modèle natif s&box : codez contre l'API publique du jeu, testez dans l'éditeur, livrez — sans le code source du gamemode.
-	</Card>
-	<Card title="Créer des addons en Lua" icon="code" href="/addons/demarrage">
-		Le langage de GMod, la syntaxe GLua incluse (`&&`, `||`, `!`, `continue`), une API familière.
-	</Card>
-	<Card title="Compatibilité DarkRP" icon="recycle" href="/compat/darkrp">
-		`DarkRP.createJob`, `AddExtraTeam`, hooks GMod : vos fichiers de config chargent tels quels.
-	</Card>
-	<Card title="Importer vos modèles GMod" icon="cube" href="/compat/import-gmod">
-		Un outil qui télécharge, extrait et convertit les modèles du Workshop GMod.
-	</Card>
-</CardGroup>
-
-## Deux façons de créer des addons — et même de les vendre
-
-- **Lua (compatible GMod)** : des dossiers de scripts déposés sur votre serveur, rechargeables à chaud — idéal pour migrer l'existant et scripter vite. C'est la moitié « venir de Garry's Mod » du SDK.
-- **C# (natif s&box)** : le [Dev Kit](/addons/csharp-demarrage) simule un serveur DarkRP Reborn dans l'éditeur ; vous codez contre le contrat d'API public (`Reborn`, `RebornEvents`, `IRebornPlayer`), et l'addon est intégré au jeu après revue. Les deux mondes voient les mêmes événements du jeu.
-
-## Comment ça marche
-
-Vos scripts Lua GMod tournent tels quels, syntaxe GLua comprise, avec l'API que vous connaissez déjà : `hook.Add`, `timer.Create`, `player.GetAll`, `ply:Nick()`, `DarkRP.createJob`…
-
-Vos addons sont de simples dossiers de fichiers `.lua` déposés sur votre serveur, **aucune compilation, aucune republication** :
-
-```text
-data/rebornstudio/cityliferp/addons/
-└── mon-addon/
-    ├── addon.json      (manifeste, optionnel)
-    └── main.lua        (point d'entrée)
-```
-
-```lua
--- main.lua, un premier addon en 6 lignes
-hook.Add("PlayerInitialSpawn", "hello", function(ply)
-	timer.Simple(8, function()
-		if IsValid(ply) then ply:ChatPrint("Bienvenue sur mon serveur !") end
-	end)
-end)
-```
-
-Rechargez à chaud avec `addon_reload` dans la console serveur. Un addon en erreur est isolé et loggé, **il ne fait jamais tomber le serveur**.
-
 ## L'esprit du projet
 
-- **Vos addons, votre serveur.** Le SDK n'impose aucune règle de gameplay : créez les métiers et systèmes que VOUS voulez.
-- **Sécurité d'abord.** Chaque addon tourne dans un bac à sable isolé (pas d'accès disque hors de son dossier, budget CPU par appel, API curée).
-- **Compatibilité mesurée, pas promise.** Chaque API est validée sur de vrais addons publics, [la matrice complète est publique](/compat/darkrp).
+- **Vos addons, votre serveur.** Aucune règle de gameplay imposée : créez les métiers et systèmes que VOUS voulez, gardez la propriété de votre code.
+- **Sécurité d'abord.** Chaque addon tourne isolé : pas d'accès aux bases de données, persistance sandboxée, budget CPU par appel côté Lua, économie serveur-autoritaire côté C#.
+- **Compatibilité mesurée, pas promise.** Chaque API GMod est validée sur de vrais addons publics — [la matrice complète est publique](/compat/darkrp).
