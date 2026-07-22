@@ -5,8 +5,8 @@
 rebuilt from scratch on Facepunch's Source 2 engine.
 
 ▶ **Play**: [sbox.game/rebornstudio/cityliferp](https://sbox.game/rebornstudio/cityliferp)
-· 📚 **Documentation**: [`docs/`](docs/) (full guide, EN/FR)
-· 🧩 **Build an addon**: [start here](docs/en/addons/csharp-getting-started.mdx)
+· 📚 **Documentation**: [dark-rp-reborn.mintlify.app](https://dark-rp-reborn.mintlify.app) (full guide, EN/FR)
+· 🧩 **Build an addon**: [start here](https://dark-rp-reborn.mintlify.app/en/addons/csharp-getting-started)
 
 ---
 
