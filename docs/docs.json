@@ -39,6 +39,7 @@
                 "pages": [
                   "addons/csharp-demarrage",
                   "addons/csharp-api",
+                  "addons/csharp-limites",
                   "addons/csharp-livrer"
                 ]
               },
@@ -91,6 +92,7 @@
                 "pages": [
                   "en/addons/csharp-getting-started",
                   "en/addons/csharp-api",
+                  "en/addons/csharp-limitations",
                   "en/addons/csharp-shipping"
                 ]
               },
@@ -192,5 +194,9 @@
       "label": "Play",
       "href": "https://sbox.game/rebornstudio/cityliferp"
     }
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
   }
 }

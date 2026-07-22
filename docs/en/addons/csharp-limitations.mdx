@@ -1,0 +1,66 @@
+---
+title: "C# addons: system limitations (v1)"
+description: "What the contract allows, what it forbids, and why. Read this page before designing your addon."
+---
+
+The v1 contract is **deliberately small**: it isolates addons from the game's
+code and databases, and keeps the whole economy server side. Design your addon
+within this frame — an addon that works around these limits is rejected in
+review.
+
+## What you CAN do
+
+- Listen to game events: `ServerReady`, `PlayerJoined`, `PlayerSpawned`,
+  `PlayerLeft`, `PlayerDied`, `PlayerChat`, `JobChanged`.
+- Give / take money (`GiveMoney` / `TakeMoney`, anti-cheat path), read `Money`,
+  `Job`, `Name`, `SteamId`, `Language`.
+- Notifications (`Notify`), private chat lines (`Chat`) and global ones
+  (`Broadcast`), chat commands (`RegisterChatCommand`).
+- Timers (`After` / `Every`), per-addon JSON persistence (`SaveData` / `LoadData`).
+- The full s&box component lifecycle (`OnStart`, `OnUpdate`, `OnFixedUpdate`)
+  and the standard s&box API server side — including, on the real server,
+  interacting with the world through `player.GameObject` (position, spawning
+  objects nearby…).
+
+## What you CANNOT do
+
+| Thing | Why |
+|---|---|
+| Create / edit / define jobs | No job API: `JobChanged` only **observes**. |
+| Block or modify chat | `PlayerChat` is observe-only: the message is already broadcast when you see it. |
+| Veto / cancel any event | All events are notifications — no return value, no "prevent default". |
+| Set job, teleport, heal, give weapons, set money to X | Not on `IRebornPlayer`: only give/take money + messages. |
+| Custom UI / menus / HUD panels | The contract only offers toasts + chat lines. Addons are server side. |
+| Client-side logic | Addons run host/server side only — nothing executes on players' machines. |
+| HTTP requests | Rejected in review (including audio/video streaming and web calls). |
+| File access outside `SaveData`/`LoadData` | Rejected in review. |
+| Access the game's databases | Impossible by design: the contract does not expose them. |
+| Reflection into game internals / referencing private game classes | Rejected in review: public contract + standard s&box API only. |
+| Modify the contract files (`code/Addons/*.cs`) | Rejected outright. |
+| Shadow a built-in command | Fixed priority: native > Lua addons > C# addons. |
+| Money printing / infinite reward loops | Rejected in review (balance). |
+
+## Important nuances
+
+- **The world is reachable, but not testable in the Dev Kit.** A C# addon is an
+  s&box component: on the real server it can create GameObjects and use
+  `player.GameObject` (standard s&box API). In the Dev Kit, `GameObject` is
+  `null` (no simulated world in v1) — test that part on the dev server, and
+  always keep a `!= null` check.
+- **C# code integrated into the published game is technically extractable** by
+  players (s&box reality). For code you want to keep secret or sell protected,
+  the server-side Lua channel is the right choice — see
+  [Selling your addon](/en/addons/csharp-shipping#selling-your-addon).
+- **The contract is versioned.** If a breaking change ever happens, the team
+  warns authors with the migration.
+
+## Being considered for v2
+
+Progressive opening, in order of community demand: client-side addon UI,
+cancellable events (chat, damage), read-only job API, spawn helpers, a
+simulated world in the Dev Kit. Nothing dated — tell us what blocks you first.
+
+<Note>
+On the Lua side, the sandbox limits (CPU, disk, API) are documented on
+[the dedicated page](/en/addons/sandbox-limites).
+</Note>

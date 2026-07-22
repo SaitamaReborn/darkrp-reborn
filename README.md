@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/images/hero.svg" alt="DarkRP Reborn" width="920"/></p>
+
 # DarkRP Reborn
 
 **Next-generation city roleplay on [s&box](https://sbox.game).** A living city,

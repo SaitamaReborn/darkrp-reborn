@@ -1,0 +1,66 @@
+---
+title: "Addons C# : limites du système (v1)"
+description: "Ce que le contrat permet, ce qu'il interdit, et pourquoi. Lisez cette page avant de concevoir votre addon."
+---
+
+Le contrat v1 est **volontairement petit** : il isole les addons du code du jeu
+et des bases de données, et garde toute l'économie côté serveur. Concevez votre
+addon dans ce cadre — un addon qui contourne ces limites est refusé en revue.
+
+## Ce que vous POUVEZ faire
+
+- Écouter les événements du jeu : `ServerReady`, `PlayerJoined`, `PlayerSpawned`,
+  `PlayerLeft`, `PlayerDied`, `PlayerChat`, `JobChanged`.
+- Donner / prendre de l'argent (`GiveMoney` / `TakeMoney`, circuit anti-triche),
+  lire `Money`, `Job`, `Name`, `SteamId`, `Language`.
+- Notifications (`Notify`), messages chat privés (`Chat`) et globaux
+  (`Broadcast`), commandes chat (`RegisterChatCommand`).
+- Timers (`After` / `Every`), persistance JSON par addon (`SaveData` / `LoadData`).
+- Tout le cycle de vie composant s&box (`OnStart`, `OnUpdate`, `OnFixedUpdate`)
+  et l'API s&box standard côté serveur — y compris, sur le vrai serveur,
+  interagir avec le monde via `player.GameObject` (position, création d'objets
+  à proximité…).
+
+## Ce que vous ne POUVEZ PAS faire
+
+| Quoi | Pourquoi |
+|---|---|
+| Créer / modifier des métiers | Pas d'API métiers : `JobChanged` **observe** seulement. |
+| Bloquer ou modifier le chat | `PlayerChat` est en observation : le message est déjà diffusé quand vous le voyez. |
+| Annuler un événement | Tous les événements sont des notifications — pas de valeur de retour, pas de « prevent default ». |
+| Forcer un métier, téléporter, soigner, donner des armes, fixer l'argent à X | Absent d'`IRebornPlayer` : uniquement donner/prendre de l'argent + messages. |
+| UI custom / menus / panneaux HUD | Le contrat n'offre que toasts + lignes de chat. Les addons sont serveur uniquement. |
+| Logique côté client | Les addons tournent côté serveur/host uniquement — rien ne s'exécute sur la machine des joueurs. |
+| Requêtes HTTP | Refusé en revue (streaming audio/vidéo et appels web compris). |
+| Accès fichiers hors `SaveData`/`LoadData` | Refusé en revue. |
+| Accès aux bases de données du jeu | Impossible par design : le contrat ne les expose pas. |
+| Réflexion sur les types internes du jeu / référencer ses classes privées | Refusé en revue : contrat public + API s&box standard uniquement. |
+| Modifier les fichiers du contrat (`code/Addons/*.cs`) | Refusé d'office. |
+| Masquer une commande du jeu | Priorité fixe : natif > addons Lua > addons C#. |
+| Imprimer de l'argent / boucles de récompense infinies | Refusé en revue (équilibrage). |
+
+## Nuances importantes
+
+- **Le monde est accessible, mais pas testable dans le Dev Kit.** Un addon C#
+  est un composant s&box : sur le vrai serveur, il peut créer des GameObjects et
+  utiliser `player.GameObject` (API s&box standard). Dans le Dev Kit,
+  `GameObject` est `null` (pas de monde simulé en v1) — testez cette partie sur
+  le serveur de dev, et gardez toujours un test `!= null`.
+- **Le code C# intégré au jeu publié est techniquement extractible** par les
+  joueurs (réalité s&box). Pour du code que vous voulez garder secret ou vendre
+  protégé, le canal Lua serveur est le bon choix — voir
+  [Vendre son addon](/addons/csharp-livrer#vendre-son-addon).
+- **Le contrat est versionné.** Si une évolution cassante devait arriver,
+  l'équipe prévient les auteurs avec la migration.
+
+## Ce qui est à l'étude pour la v2
+
+Ouverture progressive, dans l'ordre de demande de la communauté : UI client
+d'addon, événements annulables (chat, dégâts), API métiers en lecture, aides au
+spawn d'objets, monde simulé dans le Dev Kit. Rien de daté — dites-nous ce qui
+vous bloque en premier.
+
+<Note>
+Côté Lua, les limites du bac à sable (CPU, disque, API) sont documentées sur
+[la page dédiée](/addons/sandbox-limites).
+</Note>
