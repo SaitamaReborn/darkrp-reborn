@@ -69,6 +69,13 @@ string json = Reborn.LoadData( Ident );                // null si absent
 
 // Log serveur préfixé [addon:ident]
 Reborn.Log( Ident, "message" );
+
+// Monde : spawn d'un prop physique (serveur réel ; null dans le Dev Kit)
+var crate = Reborn.SpawnProp( "models/citizen_props/crate01.vmdl", pos, 45f, Ident );
+
+// Contenu runtime : métiers dans le F4 et items dans l'inventaire, comme les natifs
+Reborn.RegisterJob( new RebornJobSpec { Name = "Livreur de pizzas", Salary = 320f, MaxWorkers = 4 } );
+Reborn.RegisterItem( new RebornItemSpec { Id = "pizza", Name = "Pizza", Value = 25, HungerRestore = 40f } );
 ```
 
 ## `IRebornPlayer` : le joueur
@@ -78,11 +85,18 @@ p.Name          // pseudo (Steam sur le vrai serveur)
 p.SteamId       // SteamID64 en string
 p.Job           // nom du métier ("Policier", ...)
 p.Money         // argent liquide
+p.Health        // vie (0..100)
+p.Position      // position monde (Vector3.Zero dans le Dev Kit)
 p.Language      // langue de son interface ("fr", "en", ...)
 p.GameObject    // pawn réel sur le serveur ; null dans le Dev Kit
 
 p.GiveMoney( 100, "Récompense" );          // autoritaire côté serveur
 bool ok = p.TakeMoney( 50, "Amende" );     // false si pas les moyens (rien pris)
+p.SetMoney( 5000 );                        // fixe le liquide à un montant exact
+p.Teleport( new Vector3( 100, 200, 64 ) ); // téléporte le pawn (côté serveur)
+p.SetHealth( 50f );                        // 0..100, 0 = létal
+p.TrySetJob( "Policier" );                 // id ou nom ; règles normales du jeu
+p.GiveItem( "pizza", 3 );                  // items catalogue OU enregistrés par addon
 p.Notify( "Titre", "Message", RebornNotifyType.Success );
 p.Chat( "Ligne privée dans son chat" );
 ```
@@ -91,11 +105,11 @@ p.Chat( "Ligne privée dans son chat" );
 l'économie (gate host + garde-fous). Aucun addon ne peut créer d'argent côté
 client.
 
-## Règles et limites (v1)
+## Règles et limites (v2)
 
-- **Serveur uniquement** : pas d'UI côté client ni de RPC custom en v1. Pour un
-  retour visuel, utilisez `Notify`/`Chat`. (L'UI client addon arrive dans une
-  itération future du contrat.)
+- **Serveur uniquement** : pas d'UI côté client ni de RPC custom. Pour un
+  retour visuel, utilisez `Notify`/`Chat`. Le détail de ce qui reste fermé (et
+  pourquoi) est sur [la page limites](/addons/csharp-limites).
 - `p.GameObject` est le pawn réel : positions, spawn de props à proximité...
   Testez toujours `!= null` (Dev Kit) et gardez les mutations côté serveur.
 - Ne touchez pas aux fichiers du contrat (`code/Addons/`) ni aux types internes

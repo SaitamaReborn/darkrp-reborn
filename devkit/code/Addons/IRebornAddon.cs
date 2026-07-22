@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Sandbox;
 
 namespace DarkRPReborn.Addons;
@@ -56,12 +57,37 @@ public interface IRebornPlayer
 	/// <summary>Two-letter language code of this player's UI ("fr", "en", ...).</summary>
 	string Language { get; }
 
+	/// <summary>World position of the pawn (Vector3.Zero in the Dev Kit).</summary>
+	Vector3 Position { get; }
+
+	/// <summary>Current health (base scale 0..100).</summary>
+	float Health { get; }
+
 	/// <summary>Host-authoritative money grant. No-op off-host.</summary>
 	void GiveMoney( int amount, string reason = "" );
 
 	/// <summary>Host-authoritative charge. Returns false (and takes nothing)
 	/// if the player cannot afford it.</summary>
 	bool TakeMoney( int amount, string reason = "" );
+
+	/// <summary>Set cash on hand to an exact amount (host-authoritative).</summary>
+	void SetMoney( long amount );
+
+	/// <summary>Move the pawn to a world position (host side).</summary>
+	void Teleport( Vector3 position );
+
+	/// <summary>Set health, clamped to 0..100. 0 is lethal.</summary>
+	void SetHealth( float health );
+
+	/// <summary>Switch this player's job by job id or display name. Goes through
+	/// the game's normal job rules (max workers, vote-gated jobs may open a
+	/// vote instead of switching instantly). Returns false when no job matches.</summary>
+	bool TrySetJob( string jobIdOrName );
+
+	/// <summary>Put items in this player's inventory by item id (catalog or
+	/// addon-registered). Returns false when the id is unknown or the
+	/// inventory refuses (full).</summary>
+	bool GiveItem( string itemId, int amount = 1 );
 
 	/// <summary>Toast notification on this player's screen.</summary>
 	void Notify( string title, string message, RebornNotifyType type = RebornNotifyType.Info );
@@ -72,6 +98,47 @@ public interface IRebornPlayer
 	/// <summary>The pawn's GameObject on the real server; null in the Dev Kit.
 	/// Use it for world interactions (position, spawning props nearby...).</summary>
 	GameObject GameObject { get; }
+}
+
+/// <summary>Runtime job definition for <see cref="Reborn.RegisterJob"/> - the
+/// job shows up in the F4 menu like any data-driven one.</summary>
+public sealed class RebornJobSpec
+{
+	/// <summary>Display name, unique among jobs. Required.</summary>
+	public string Name { get; set; }
+	public string Description { get; set; } = "";
+	public float Salary { get; set; } = 250f;
+	/// <summary>0 = unlimited.</summary>
+	public int MaxWorkers { get; set; } = 0;
+	/// <summary>True = taking the job opens a server-wide vote.</summary>
+	public bool Vote { get; set; } = false;
+	/// <summary>Hex color like "#5aa8ff" (empty = default).</summary>
+	public string Color { get; set; } = "";
+	/// <summary>Existing F4 category name to file the job under (empty = none).</summary>
+	public string Category { get; set; } = "";
+	public List<string> Weapons { get; set; }
+	public List<string> Items { get; set; }
+}
+
+/// <summary>Runtime item definition for <see cref="Reborn.RegisterItem"/> -
+/// registered into the item database, usable with IRebornPlayer.GiveItem.</summary>
+public sealed class RebornItemSpec
+{
+	/// <summary>Stable item id, unique. Required.</summary>
+	public string Id { get; set; }
+	public string Name { get; set; } = "";
+	public string Description { get; set; } = "";
+	/// <summary>Icon path or thumb: protocol (empty = default).</summary>
+	public string Icon { get; set; } = "";
+	public int MaxStack { get; set; } = 1;
+	/// <summary>Base value in $.</summary>
+	public int Value { get; set; } = 0;
+	public float HungerRestore { get; set; } = 0f;
+	public float ThirstRestore { get; set; } = 0f;
+	public float HealthRestore { get; set; } = 0f;
+	public string WorldModel { get; set; } = "";
+	/// <summary>Item type name (Material, Consumable...). Default Material.</summary>
+	public string Type { get; set; } = "Material";
 }
 
 public enum RebornNotifyType

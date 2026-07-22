@@ -13,6 +13,9 @@ namespace DarkRPReborn.Addons;
 /// </summary>
 public static class Reborn
 {
+	/// <summary>Contract version. Bumped when the addon-facing API grows.</summary>
+	public const int ApiVersion = 2;
+
 	/// <summary>Bound by <see cref="RebornAddonSystem"/> at boot. Null until then.</summary>
 	public static RebornHost Host { get; internal set; }
 
@@ -44,6 +47,27 @@ public static class Reborn
 	/// method name shadows the engine's global Log object.</remarks>
 	public static void Log( string addonIdent, string message )
 		=> RebornLogSink.Info( $"[addon:{addonIdent}] {message}" );
+
+	// ---- world ------------------------------------------------------------
+
+	/// <summary>Spawn a physics prop in the world (host side). Returns the
+	/// GameObject on the real server, null in the Dev Kit (no world) or when
+	/// the model is missing. Pass your Ident so the prop is tracked per addon.</summary>
+	public static GameObject SpawnProp( string modelPath, Vector3 position, float yawDegrees = 0f, string addonIdent = "" )
+		=> Host?.SpawnProp( modelPath, position, yawDegrees, addonIdent );
+
+	// ---- runtime content --------------------------------------------------
+
+	/// <summary>Register a new job at runtime - it appears in the F4 menu on
+	/// every client, like any built-in job. Returns null on success, else a
+	/// human-readable error (duplicate name, missing field...).</summary>
+	public static string RegisterJob( RebornJobSpec spec )
+		=> Host == null ? "addon host not bound" : Host.RegisterJob( spec );
+
+	/// <summary>Register a new inventory item at runtime - usable with
+	/// IRebornPlayer.GiveItem. Returns null on success, else an error.</summary>
+	public static string RegisterItem( RebornItemSpec spec )
+		=> Host == null ? "addon host not bound" : Host.RegisterItem( spec );
 
 	// ---- chat commands ----------------------------------------------------
 	// Native gamemode commands always win, then Lua addons, then these - a C#
@@ -235,4 +259,13 @@ public abstract class RebornHost : Component
 	/// <summary>Fed by the gamemode's central hook dispatch. Implementations
 	/// translate native args and raise the typed <see cref="RebornEvents"/>.</summary>
 	public abstract void OnGameHook( string eventName, object[] args );
+
+	/// <summary>See <see cref="Reborn.SpawnProp"/>.</summary>
+	public abstract GameObject SpawnProp( string modelPath, Vector3 position, float yawDegrees, string addonIdent );
+
+	/// <summary>See <see cref="Reborn.RegisterJob"/>. Null = success.</summary>
+	public abstract string RegisterJob( RebornJobSpec spec );
+
+	/// <summary>See <see cref="Reborn.RegisterItem"/>. Null = success.</summary>
+	public abstract string RegisterItem( RebornItemSpec spec );
 }

@@ -45,6 +45,33 @@ public sealed class RebornHostStub : RebornHost
 		}
 	}
 
+	public override GameObject SpawnProp( string modelPath, Vector3 position, float yawDegrees, string addonIdent )
+	{
+		DevkitConsole.Push( $"[world] prop spawned: {modelPath} at {position} (simulated - no world in the Dev Kit)" );
+		return null;
+	}
+
+	readonly List<string> _jobs = new();
+	readonly List<string> _items = new();
+
+	public override string RegisterJob( RebornJobSpec spec )
+	{
+		if ( spec == null || string.IsNullOrWhiteSpace( spec.Name ) ) return "spec.Name is required";
+		if ( _jobs.Contains( spec.Name ) ) return $"job '{spec.Name}' already exists";
+		_jobs.Add( spec.Name );
+		DevkitConsole.Push( $"[jobs] registered: {spec.Name} (salary {spec.Salary}, max {spec.MaxWorkers})" );
+		return null;
+	}
+
+	public override string RegisterItem( RebornItemSpec spec )
+	{
+		if ( spec == null || string.IsNullOrWhiteSpace( spec.Id ) ) return "spec.Id is required";
+		if ( _items.Contains( spec.Id ) ) return $"item '{spec.Id}' already exists";
+		_items.Add( spec.Id );
+		DevkitConsole.Push( $"[items] registered: {spec.Id} ({spec.Name})" );
+		return null;
+	}
+
 	public StubPlayer AddFakePlayer( string name )
 	{
 		var p = new StubPlayer { Name = name, SteamId = (76560000000000000L + _players.Count + 1).ToString() };
@@ -78,6 +105,52 @@ public sealed class RebornHostStub : RebornHost
 			if ( amount <= 0 || Money < amount ) return false;
 			Money -= amount;
 			DevkitConsole.Push( $"[money] -{amount}$ for {Name}{(string.IsNullOrEmpty( reason ) ? "" : $" ({reason})")} -> {Money}$" );
+			return true;
+		}
+
+		public Vector3 Position { get; set; } = Vector3.Zero;
+		public float Health { get; private set; } = 100f;
+
+		public void Teleport( Vector3 position )
+		{
+			Position = position;
+			DevkitConsole.Push( $"[world] {Name} teleported to {position}" );
+		}
+
+		public void SetHealth( float health )
+		{
+			Health = System.Math.Clamp( health, 0f, 100f );
+			DevkitConsole.Push( $"[health] {Name} -> {Health}" );
+			if ( Health <= 0f )
+			{
+				DevkitConsole.Push( $"[server] {Name} died." );
+				RebornAddonSystem.OnGameHook( "PlayerDeath", new object[] { this } );
+				Health = 100f;
+				RebornAddonSystem.OnGameHook( "PlayerSpawn", new object[] { this } );
+			}
+		}
+
+		public void SetMoney( long amount )
+		{
+			if ( amount < 0 ) return;
+			Money = amount;
+			DevkitConsole.Push( $"[money] {Name} set to {Money}$" );
+		}
+
+		public bool TrySetJob( string jobIdOrName )
+		{
+			if ( string.IsNullOrWhiteSpace( jobIdOrName ) ) return false;
+			var old = Job;
+			Job = jobIdOrName;
+			DevkitConsole.Push( $"[jobs] {Name}: {old} -> {Job}" );
+			RebornAddonSystem.OnGameHook( "OnPlayerChangedTeam", new object[] { this, old, Job } );
+			return true;
+		}
+
+		public bool GiveItem( string itemId, int amount = 1 )
+		{
+			if ( string.IsNullOrWhiteSpace( itemId ) || amount <= 0 ) return false;
+			DevkitConsole.Push( $"[items] {Name} received {amount}x {itemId}" );
 			return true;
 		}
 

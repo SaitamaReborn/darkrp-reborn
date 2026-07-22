@@ -69,6 +69,13 @@ string json = Reborn.LoadData( Ident );              // null when absent
 
 // Prefixed server log [addon:ident]
 Reborn.Log( Ident, "message" );
+
+// World: spawn a physics prop (real server; null in the Dev Kit)
+var crate = Reborn.SpawnProp( "models/citizen_props/crate01.vmdl", pos, 45f, Ident );
+
+// Runtime content: jobs in the F4 menu and inventory items, like built-in ones
+Reborn.RegisterJob( new RebornJobSpec { Name = "Pizza delivery", Salary = 320f, MaxWorkers = 4 } );
+Reborn.RegisterItem( new RebornItemSpec { Id = "pizza", Name = "Pizza", Value = 25, HungerRestore = 40f } );
 ```
 
 ## `IRebornPlayer`: the player
@@ -78,11 +85,18 @@ p.Name          // display name (Steam name on the real server)
 p.SteamId       // SteamID64 as string
 p.Job           // job name ("Policier", ...)
 p.Money         // cash on hand
+p.Health        // health (0..100)
+p.Position      // world position (Vector3.Zero in the Dev Kit)
 p.Language      // their UI language ("fr", "en", ...)
 p.GameObject    // real pawn on the server; null in the Dev Kit
 
 p.GiveMoney( 100, "Reward" );              // server-authoritative
 bool ok = p.TakeMoney( 50, "Fine" );       // false if they can't afford it (takes nothing)
+p.SetMoney( 5000 );                        // set cash to an exact amount
+p.Teleport( new Vector3( 100, 200, 64 ) ); // move the pawn (server side)
+p.SetHealth( 50f );                        // 0..100, 0 is lethal
+p.TrySetJob( "Policier" );                 // id or name; normal game rules apply
+p.GiveItem( "pizza", 3 );                  // catalog OR addon-registered items
 p.Notify( "Title", "Message", RebornNotifyType.Success );
 p.Chat( "Private line in their chat" );
 ```
@@ -90,10 +104,11 @@ p.Chat( "Private line in their chat" );
 `GiveMoney`/`TakeMoney` go through the same anti-cheat path as the rest of the
 economy (host gate + guards). No addon can mint money client side.
 
-## Rules and limits (v1)
+## Rules and limits (v2)
 
-- **Server only**: no client UI and no custom RPCs in v1. For visual feedback use
-  `Notify`/`Chat`. (Client addon UI comes in a future contract iteration.)
+- **Server only**: no client UI and no custom RPCs. For visual feedback use
+  `Notify`/`Chat`. What remains closed (and why) is detailed on
+  [the limitations page](/en/addons/csharp-limitations).
 - `p.GameObject` is the real pawn: positions, spawning props nearby... Always
   null-check it (Dev Kit) and keep mutations server side.
 - Never touch the contract files (`code/Addons/`) or the game's internal types:
