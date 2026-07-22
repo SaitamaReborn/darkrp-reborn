@@ -10,11 +10,12 @@ at the same level as the gamemode's own systems.
 ## The pipeline
 
 1. **Develop** in the Dev Kit (`devkit/code/MyAddons/<your-ident>/`).
-2. **Send** the addon folder (zip) to the DarkRP Reborn team - Discord or the
-   contact the team gave you. Include: ident, a one-sentence description, and
-   what the addon visibly does in game.
+2. **Open a Pull Request** on the [public darkrp-reborn repository](https://github.com/SaitamaReborn/darkrp-reborn):
+   fork, copy your folder into `addons/<your-ident>/` with its `addon.md`
+   sheet, the PR template guides you. (No GitHub account? A zip to the team on
+   Discord works too.)
 3. **Review**: code read (checklist below), test in the Dev Kit then on the dev
-   server.
+   server - right in the PR.
 4. **Integration**: the addon lands as-is in the game's `code/Addons/<your-ident>/`
    and ships with the next publish. Your `Author` shows in `csaddon_list`.
 5. **Updates**: resend the folder with `Version` bumped; same pipeline, faster.

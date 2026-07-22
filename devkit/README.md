@@ -32,8 +32,10 @@ des addons C# DarkRP Reborn **sans le code source du jeu**. Il contient :
 
 ## Livrer votre addon
 
-Envoyez le dossier `code/MyAddons/<votre-ident>/` (zip) à l'équipe DarkRP Reborn.
-Après revue, il est intégré au jeu dans `code/Addons/<votre-ident>/` et déployé au
-prochain publish - il tourne alors avec les vrais joueurs, sans modification.
+Ouvrez une Pull Request sur le dépôt public
+[SaitamaReborn/darkrp-reborn](https://github.com/SaitamaReborn/darkrp-reborn) : votre dossier dans `addons/<votre-ident>/`
+avec sa fiche `addon.md`. Après revue, l'addon est intégré au jeu dans
+`code/Addons/<votre-ident>/` et déployé au prochain publish - il tourne alors
+avec les vrais joueurs, sans modification.
 
 Documentation complète : voir `docs/` (Créer des addons -> Addons C#).
