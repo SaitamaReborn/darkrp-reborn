@@ -59,25 +59,25 @@ public sealed class RebornHostStub : RebornHost
 
 	public sealed class StubPlayer : IRebornPlayer
 	{
-		public string Name { get; set; } = "Joueur";
+		public string Name { get; set; } = "Player";
 		public string SteamId { get; set; } = "0";
-		public string Job { get; set; } = "Citoyen";
+		public string Job { get; set; } = "Citizen";
 		public long Money { get; set; } = 1500;
-		public string Language { get; set; } = "fr";
+		public string Language { get; set; } = "en";
 		public GameObject GameObject => null;
 
 		public void GiveMoney( int amount, string reason = "" )
 		{
 			if ( amount <= 0 ) return;
 			Money += amount;
-			DevkitConsole.Push( $"[money] +{amount}$ pour {Name}{(string.IsNullOrEmpty( reason ) ? "" : $" ({reason})")} -> {Money}$" );
+			DevkitConsole.Push( $"[money] +{amount}$ for {Name}{(string.IsNullOrEmpty( reason ) ? "" : $" ({reason})")} -> {Money}$" );
 		}
 
 		public bool TakeMoney( int amount, string reason = "" )
 		{
 			if ( amount <= 0 || Money < amount ) return false;
 			Money -= amount;
-			DevkitConsole.Push( $"[money] -{amount}$ pour {Name}{(string.IsNullOrEmpty( reason ) ? "" : $" ({reason})")} -> {Money}$" );
+			DevkitConsole.Push( $"[money] -{amount}$ for {Name}{(string.IsNullOrEmpty( reason ) ? "" : $" ({reason})")} -> {Money}$" );
 			return true;
 		}
 

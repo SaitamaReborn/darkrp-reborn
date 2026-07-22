@@ -1,0 +1,9 @@
+{
+	"name": "My Addon",
+	"author": "Your name",
+	"version": "0.1",
+	"description": "Describe what your addon does.",
+	"entry": "main.lua",
+	"apiVersion": 1,
+	"enabled": true
+}

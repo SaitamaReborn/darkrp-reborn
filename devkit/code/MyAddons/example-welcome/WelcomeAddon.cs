@@ -7,8 +7,8 @@ using DarkRPReborn.Addons;
 
 public sealed class WelcomeAddon : RebornAddon
 {
-	public override string Ident => "exemple-bienvenue";
-	public override string Name => "Message de bienvenue";
+	public override string Ident => "example-welcome";
+	public override string Name => "Welcome message";
 	public override string Author => "DarkRP Reborn";
 	public override string Version => "1.0";
 
@@ -24,17 +24,17 @@ public sealed class WelcomeAddon : RebornAddon
 		RebornEvents.PlayerJoined += OnPlayerJoined;
 		RebornEvents.JobChanged += OnJobChanged;
 
-		// Chat command: players type /coucou in chat.
-		Reborn.RegisterChatCommand( "coucou", "Petit cadeau de bienvenue (100$)", ( player, args ) =>
+		// Chat command: players type /welcome in chat.
+		Reborn.RegisterChatCommand( "welcome", "A small welcome gift (100$)", ( player, args ) =>
 		{
-			player.GiveMoney( 100, "Cadeau de bienvenue" );
-			player.Chat( "Voilà 100$ pour bien démarrer !" );
+			player.GiveMoney( 100, "Welcome gift" );
+			player.Chat( "Here is 100$ to get you started!" );
 		}, Ident );
 
 		// Repeating timer, host-side.
-		Reborn.Every( 300f, () => Reborn.Broadcast( "Bienvenue sur DarkRP Reborn - tapez /coucou !" ) );
+		Reborn.Every( 300f, () => Reborn.Broadcast( "Welcome to DarkRP Reborn - type /welcome!" ) );
 
-		Reborn.Log( Ident, $"chargé ({_joinCount} joueurs accueillis à ce jour)" );
+		Reborn.Log( Ident, $"loaded ({_joinCount} players welcomed so far)" );
 	}
 
 	void OnPlayerJoined( IRebornPlayer player )
@@ -42,13 +42,13 @@ public sealed class WelcomeAddon : RebornAddon
 		_joinCount++;
 		Reborn.SaveData( Ident, _joinCount.ToString() );
 
-		player.Notify( "Bienvenue !", $"Bonjour {player.Name}, bon jeu sur le serveur.", RebornNotifyType.Success );
-		Reborn.Broadcast( $"{player.Name} vient d'arriver en ville. Souhaitez-lui la bienvenue !" );
+		player.Notify( "Welcome!", $"Hello {player.Name}, have a good time on the server.", RebornNotifyType.Success );
+		Reborn.Broadcast( $"{player.Name} just arrived in town. Say hi!" );
 	}
 
 	void OnJobChanged( IRebornPlayer player, string oldJob, string newJob )
 	{
-		player.Chat( $"Nouveau métier : {newJob}. Bonne chance !" );
+		player.Chat( $"New job: {newJob}. Good luck!" );
 	}
 
 	public override void OnAddonUnloaded()

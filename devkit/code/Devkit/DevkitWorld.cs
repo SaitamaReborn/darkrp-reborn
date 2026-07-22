@@ -26,10 +26,10 @@ public sealed class DevkitWorld : Component
 		ui.Components.Create<DevkitConsole>();
 
 		DevkitConsole.Push( "DarkRP Reborn - Dev Kit" );
-		DevkitConsole.Push( "Votre addon C# tourne ici contre un serveur simulé." );
-		DevkitConsole.Push( "Commandes console : devkit_players, devkit_join <nom>, devkit_leave <nom>," );
-		DevkitConsole.Push( "  devkit_say <texte> (ou devkit_say \"/cmd args\"), devkit_die <nom>, devkit_job <nom> <métier>" );
-		DevkitConsole.Push( "csaddon_list liste les addons chargés." );
+		DevkitConsole.Push( "Your C# addon runs here against a simulated server." );
+		DevkitConsole.Push( "Console commands: devkit_players, devkit_join <name>, devkit_leave <name>," );
+		DevkitConsole.Push( "  devkit_say <text> (or devkit_say \"/cmd args\"), devkit_die <name>, devkit_job <name> <job>" );
+		DevkitConsole.Push( "csaddon_list lists the loaded addons." );
 
 		// The loader on the same scene object has already bound the stub host by
 		// the time OnStart order settles; simulate boot + two joins right after.
@@ -53,7 +53,7 @@ public sealed class DevkitWorld : Component
 		var stub = Stub;
 		if ( stub == null ) return;
 		var p = stub.AddFakePlayer( name );
-		DevkitConsole.Push( $"[serveur] {name} a rejoint." );
+		DevkitConsole.Push( $"[server] {name} joined." );
 		RebornAddonSystem.OnGameHook( "PlayerInitialSpawn", new object[] { p } );
 		RebornAddonSystem.OnGameHook( "PlayerSpawn", new object[] { p } );
 	}
@@ -73,10 +73,10 @@ public sealed class DevkitWorld : Component
 	{
 		var stub = Stub;
 		var p = stub?.FindStub( name );
-		if ( p == null ) { Log.Warning( $"[devkit] joueur inconnu : {name}" ); return; }
+		if ( p == null ) { Log.Warning( $"[devkit] unknown player: {name}" ); return; }
 		RebornAddonSystem.OnGameHook( "PlayerDisconnected", new object[] { p } );
 		stub.RemoveStub( p );
-		DevkitConsole.Push( $"[serveur] {name} a quitté." );
+		DevkitConsole.Push( $"[server] {name} left." );
 	}
 
 	/// <summary>Speaks as the first fake player. Text starting with "/" is
@@ -93,7 +93,7 @@ public sealed class DevkitWorld : Component
 			if ( parts.Length == 0 ) return;
 			DevkitConsole.Push( $"[{speaker.Name}] {text}" );
 			if ( !Reborn.TryExecuteChatCommand( parts[0], speaker, parts.Skip( 1 ).ToArray() ) )
-				DevkitConsole.Push( $"[serveur] /{parts[0]} : aucune commande d'addon ne répond." );
+				DevkitConsole.Push( $"[server] /{parts[0]}: no addon command answered." );
 			return;
 		}
 
@@ -105,8 +105,8 @@ public sealed class DevkitWorld : Component
 	public static void CmdDie( string name = "Alice" )
 	{
 		var p = Stub?.FindStub( name );
-		if ( p == null ) { Log.Warning( $"[devkit] joueur inconnu : {name}" ); return; }
-		DevkitConsole.Push( $"[serveur] {name} est mort." );
+		if ( p == null ) { Log.Warning( $"[devkit] unknown player: {name}" ); return; }
+		DevkitConsole.Push( $"[server] {name} died." );
 		RebornAddonSystem.OnGameHook( "PlayerDeath", new object[] { p } );
 		RebornAddonSystem.OnGameHook( "PlayerSpawn", new object[] { p } );
 	}
@@ -115,10 +115,10 @@ public sealed class DevkitWorld : Component
 	public static void CmdJob( string name, string job )
 	{
 		var p = Stub?.FindStub( name );
-		if ( p == null || string.IsNullOrWhiteSpace( job ) ) { Log.Warning( $"[devkit] usage: devkit_job <nom> <métier>" ); return; }
+		if ( p == null || string.IsNullOrWhiteSpace( job ) ) { Log.Warning( $"[devkit] usage: devkit_job <name> <job>" ); return; }
 		var old = p.Job;
 		p.Job = job;
-		DevkitConsole.Push( $"[serveur] {name} : {old} -> {job}" );
+		DevkitConsole.Push( $"[server] {name}: {old} -> {job}" );
 		RebornAddonSystem.OnGameHook( "OnPlayerChangedTeam", new object[] { p, old, job } );
 	}
 }

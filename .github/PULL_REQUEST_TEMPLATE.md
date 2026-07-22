@@ -1,19 +1,19 @@
-## Mon addon
+## My addon
 
-- **Ident** : `mon-addon`
-- **Nom affiché** :
-- **Version** :
-- **Description (1 phrase)** :
+- **Ident**: `my-addon`
+- **Display name**:
+- **Version**:
+- **Description (one sentence)**:
 
-## Ce que l'addon fait en jeu
+## What the addon does in game
 
-<!-- Commandes ajoutées, événements écoutés, ce que le joueur voit. -->
+<!-- Commands added, events listened to, what players see. -->
 
-## Checklist (cochez avant d'ouvrir la PR)
+## Checklist (tick before opening the PR)
 
-- [ ] Testé dans le Dev Kit (`devkit_join`, `devkit_say "/macommande"`, ...)
-- [ ] N'utilise QUE le contrat public (`RebornAddon`, `Reborn`, `RebornEvents`, `IRebornPlayer`)
-- [ ] Pas d'allocations par frame dans `OnUpdate`/`OnFixedUpdate`
-- [ ] Argent uniquement via `GiveMoney`/`TakeMoney`
-- [ ] `addon.md` remplie (ident, auteur, version, description)
-- [ ] J'accepte l'intégration de cet addon au jeu publié (je reste crédité comme auteur)
+- [ ] Tested in the Dev Kit (`devkit_join`, `devkit_say "/mycommand"`, ...)
+- [ ] Uses ONLY the public contract (`RebornAddon`, `Reborn`, `RebornEvents`, `IRebornPlayer`)
+- [ ] No per-frame allocations in `OnUpdate`/`OnFixedUpdate`
+- [ ] Money only via `GiveMoney`/`TakeMoney`
+- [ ] `addon.md` filled in (ident, author, version, description)
+- [ ] I accept this addon being integrated into the published game (I stay credited as its author)

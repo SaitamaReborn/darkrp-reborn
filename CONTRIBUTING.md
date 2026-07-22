@@ -1,53 +1,53 @@
-# Contribuer — soumettre un addon
+# Contributing — submitting an addon
 
-Merci de contribuer à DarkRP Reborn ! Ce dépôt accepte les **addons C#**
-développés avec le Dev Kit. Une Pull Request = un addon.
+Thanks for contributing to DarkRP Reborn! This repository accepts **C# addons**
+built with the Dev Kit. One Pull Request = one addon.
 
-## Le circuit
+## The pipeline
 
-1. Développez dans le Dev Kit (`devkit/`, voir
-   [le guide](docs/addons/csharp-demarrage.mdx)).
-2. Forkez ce dépôt, copiez votre dossier vers `addons/<votre-ident>/` :
+1. Build your addon in the Dev Kit (`devkit/`, see
+   [the guide](docs/en/addons/csharp-getting-started.mdx)).
+2. Fork this repository and copy your folder to `addons/<your-ident>/`:
 
 ```text
 addons/
-└── mon-addon/              ← ident : minuscules, chiffres, tirets (définitif)
-    ├── addon.md            ← fiche : ident, auteur, version, description
-    └── MonAddon.cs         ← vos classes (dérivées de RebornAddon)
+└── my-addon/               ← your ident: lowercase, digits, hyphens (permanent)
+    ├── addon.md            ← sheet: ident, author, version, description
+    └── MyAddon.cs          ← your classes (deriving from RebornAddon)
 ```
 
-3. Ouvrez une Pull Request (le template vous guide).
-4. Revue par l'équipe → allers-retours éventuels → merge = intégration au jeu
-   et déploiement au publish suivant. Vous restez l'auteur (`Author`, affiché
-   en jeu dans `csaddon_list`).
+3. Open a Pull Request (the template guides you).
+4. Team review → possible back-and-forth → merge = integration into the game
+   and deployment with the next publish. You remain the author (`Author`,
+   shown in game in `csaddon_list`).
 
-## Checklist de revue
+## Review checklist
 
-Accepté :
+Accepted:
 
-- Ne référence **que** le contrat public (`RebornAddon`, `Reborn`,
-  `RebornEvents`, `IRebornPlayer`) et l'API s&box standard.
-- Logique serveur : argent via `GiveMoney`/`TakeMoney`, jamais de valeur
-  inventée côté client.
-- `OnUpdate`/`OnFixedUpdate` sobres : pas d'allocations par frame, pas de scan
-  de scène à chaque tick (cache + `Reborn.Every`).
-- Textes joueurs propres, idéalement localisés via `p.Language`.
-- Un addon par dossier, ident stable, `Version` renseignée, `addon.md` remplie.
+- References **only** the public contract (`RebornAddon`, `Reborn`,
+  `RebornEvents`, `IRebornPlayer`) and the standard s&box API.
+- Server-authoritative logic: money via `GiveMoney`/`TakeMoney`, never a
+  client-invented value.
+- Lean `OnUpdate`/`OnFixedUpdate`: no per-frame allocations, no scene scans
+  every tick (cache + `Reborn.Every`).
+- Clean player-facing text, ideally localized via `p.Language`.
+- One addon per folder, stable ident, `Version` filled in, `addon.md` complete.
 
-Refusé d'office :
+Rejected outright:
 
-- Copie modifiée des fichiers du contrat (`devkit/code/Addons/*.cs`).
-- Réflexion sur les types internes du jeu, accès fichiers hors
-  `Reborn.SaveData`/`LoadData`, requêtes HTTP.
-- Économie déséquilibrée (impression d'argent, boucles de récompense infinies).
-- Code obfusqué ou illisible : la revue lit tout.
+- Modified copies of the contract files (`devkit/code/Addons/*.cs`).
+- Reflection into the game's internal types, file access outside
+  `Reborn.SaveData`/`LoadData`, HTTP requests.
+- Unbalanced economy (money printing, infinite reward loops).
+- Obfuscated or unreadable code: the review reads everything.
 
-## Mises à jour
+## Updates
 
-Même circuit : PR sur votre dossier avec `Version` incrémentée et le changelog
-dans la description de la PR.
+Same pipeline: a PR on your folder with `Version` bumped and the changelog in
+the PR description.
 
-## Autre chose qu'un addon ?
+## Something other than an addon?
 
-Corrections de documentation bienvenues (PR sur `docs/`). Pour les bugs du jeu
-lui-même, passez par le Discord — ce dépôt ne contient pas le code du jeu.
+Documentation fixes are welcome (PR on `docs/`). For bugs in the game itself,
+use the Discord — this repository does not contain the game's code.
