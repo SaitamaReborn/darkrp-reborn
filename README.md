@@ -10,8 +10,9 @@ rebuilt from scratch on Facepunch's Source 2 engine.
 
 ---
 
-This repository is the **open half** of the project: everything you need to
-build, test and submit **addons** — without the game's source code.
+This repository is the **open half** of the project: a full addon system that
+lets anyone **create — and even sell — addons** for DarkRP Reborn servers,
+without ever needing access to the game's source code or its databases.
 
 ```text
 devkit/      An OPENABLE s&box project: simulated server + the game's API contract.

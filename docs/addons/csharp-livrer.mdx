@@ -53,6 +53,28 @@ jeu publié et à le désactiver si un problème de prod l'exige. Le contrat d'A
 est versionné : si un changement cassant arrive un jour, l'équipe vous prévient
 avec la migration.
 
+## Vendre son addon
+
+Le système est pensé pour que vous puissiez **créer — et même vendre — vos
+addons** sans jamais avoir accès au code source du jeu ni à ses bases de
+données (le contrat vous isole par design : pas d'accès BDD, persistance
+sandboxée par addon via `SaveData`).
+
+- **Gratuit / communautaire** : le circuit ci-dessus (PR publique), votre nom
+  crédité en jeu.
+- **Payant** : votre code reste le vôtre — vendez-le en direct (votre boutique,
+  Discord) aux propriétaires de serveurs ou à l'équipe. Deux canaux techniques,
+  à choisir selon la protection voulue :
+  - **Addon Lua** : déposé sur UN serveur (`data/addons/`), sa logique serveur
+    n'est **jamais distribuée aux joueurs** — c'est le bon canal pour du code
+    payant que vous voulez protéger.
+  - **Addon C#** : intégré au jeu publié — sur s&box, le source d'un package
+    publié est techniquement extractible par les joueurs. Recommandé pour les
+    addons gratuits/crédités, ou vendez une **licence d'utilisation** plutôt
+    qu'un secret de code.
+- Un espace de mise en avant des addons payants est à l'étude ; en attendant,
+  contactez l'équipe pour être référencé.
+
 <Note>
 Vous voulez plutôt un script rapide, rechargeable à chaud sur un serveur, sans
 revue ? C'est le rôle des [addons Lua](/addons/demarrage) — les deux mondes

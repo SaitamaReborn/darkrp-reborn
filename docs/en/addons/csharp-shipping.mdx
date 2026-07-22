@@ -50,6 +50,28 @@ By sending it you allow DarkRP Reborn to ship it inside the published game and t
 disable it if a production issue requires it. The API contract is versioned: if a
 breaking change ever happens, the team warns you with the migration.
 
+## Selling your addon
+
+The system is built so you can **create — and even sell — your addons** without
+ever needing access to the game's source code or its databases (the contract
+isolates you by design: no database access, per-addon sandboxed persistence via
+`SaveData`).
+
+- **Free / community**: the pipeline above (public PR), your name credited in
+  game.
+- **Paid**: your code stays yours — sell it directly (your shop, Discord) to
+  server owners or to the team. Two technical channels, pick by how much
+  protection you need:
+  - **Lua addon**: dropped on ONE server (`data/addons/`), its server logic is
+    **never distributed to players** — the right channel for paid code you want
+    to protect.
+  - **C# addon**: integrated into the published game — on s&box, a published
+    package's source is technically extractable by players. Recommended for
+    free/credited addons, or sell a **usage license** rather than a code
+    secret.
+- A showcase space for paid addons is being considered; in the meantime,
+  contact the team to get listed.
+
 <Note>
 Want a quick, hot-reloadable server script without review instead? That is what
 [Lua addons](/en/addons/demarrage) are for - both worlds see the same game
