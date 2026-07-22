@@ -1,0 +1,48 @@
+---
+title: "DarkRP Reborn SDK"
+description: "Monta tu servidor de rol en s&box y crea addons en Lua, como en Garry's Mod, pero mejor."
+---
+
+**DarkRP Reborn** es el rol urbano de nueva generación en [s&box](https://sbox.game), el sucesor de Garry's Mod creado por Facepunch. Este SDK te da todo lo necesario:
+
+<CardGroup cols={2}>
+	<Card title="Aloja tu servidor" icon="server" href="/es/serveur/heberger">
+		Un servidor dedicado de DarkRP Reborn en unos 15 minutos.
+	</Card>
+	<Card title="Crea addons en Lua" icon="code" href="/es/addons/demarrage">
+		El lenguaje de GMod, sintaxis GLua (`&&`, `||`, `!`, `continue`), una API familiar.
+	</Card>
+	<Card title="Compatibilidad DarkRP" icon="recycle" href="/es/compat/migration">
+		`DarkRP.createJob`, `AddExtraTeam`, hooks de GMod: tus archivos cargan tal cual.
+	</Card>
+	<Card title="Migra tu servidor GMod" icon="cube" href="/es/compat/migration">
+		Un solo comando migra todo tu servidor de Garry's Mod a s&box.
+	</Card>
+</CardGroup>
+
+## Cómo funciona
+
+Tus scripts Lua de GMod funcionan tal cual, sintaxis GLua incluida, con la API que ya conoces:
+
+Tus addons son simples carpetas de archivos `.lua` colocadas en tu servidor: **sin compilar, sin republicar**.
+
+```lua
+-- main.lua, un primer addon en 6 líneas
+hook.Add("PlayerInitialSpawn", "hello", function(ply)
+	timer.Simple(8, function()
+		if IsValid(ply) then ply:ChatPrint("¡Bienvenido a mi servidor!") end
+	end)
+end)
+```
+
+Recarga en caliente con `addon_reload` en la consola del servidor. Un addon con error queda aislado y registrado, **nunca tumba el servidor**.
+
+## Empieza fácil
+
+Para principiantes, todo está pensado para ser lo más simple posible: copia `template/mon-addon/` en tu servidor, ejecuta `addon_reload`, escribe `/hello` en el juego. Listo.
+
+## Principios del proyecto
+
+- **Tus addons, tu servidor.** El SDK no impone reglas: crea los trabajos y sistemas que TÚ quieras.
+- **Seguridad primero.** Cada addon corre en un entorno aislado.
+- **Compatibilidad medida en addons reales.** [Detalles de la migración](/es/compat/migration).

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 320">
+<rect x="10" y="10" width="300" height="300" rx="78" fill="#4338EB"/><g transform="rotate(13 160 156)">
+  <path d="M46 118 L252 106 Q268 105 272 120 L276 148 Q277 160 264 161 L180 166 L172 250 Q170 262 158 263 L120 266 Q108 267 109 254 L116 170 L92 172 L76 194 Q70 202 62 195 L50 184 Q44 178 50 170 L64 152 L48 150 Q38 148 39 136 Z" fill="#ffffff"/>
+  <path d="M96 128 L134 126 L116 148 Z" fill="#4338EB"/>
+</g>
+<text x="370" y="212" font-family="Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="148" letter-spacing="-4" fill="#16143A">DarkRP Reborn</text>
+</svg>

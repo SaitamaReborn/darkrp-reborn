@@ -1,0 +1,112 @@
+---
+title: "Tutorial: the City Lottery"
+description: "A real gameplay addon, step by step, commands, money, timers, persistence, i18n."
+---
+
+We build a **city lottery**: players buy 100 € tickets, an automatic draw runs every 20 minutes, the winner takes a pot that survives restarts. Full code in the SDK's `examples/loterie/`.
+
+## 1. Skeleton
+
+```text
+addons/lottery/
+├── addon.json
+└── main.lua
+```
+
+## 2. Config & translations
+
+```lua
+local TICKET_PRICE = 100
+local DRAW_MINUTES = 20
+local POT_SEED     = 500
+
+locale.Register("loterie.ticket_ok",
+	"Ticket acheté ! Vous en avez %d. Cagnotte : %s €.",
+	"Ticket bought! You now hold %d. Pot: %s €.")
+```
+
+Golden rule: **no hardcoded strings**, everything through `locale.Register`, French + English.
+
+## 3. Persistent state
+
+```lua
+local tickets = data.Get("tickets", {})   -- { [steamid64] = count }
+local pot     = data.Get("pot", POT_SEED)
+
+local function save()
+	data.Set("tickets", tickets)
+	data.Set("pot", pot)
+end
+```
+
+SteamID64s as keys, **always strings** (Lua number precision).
+
+## 4. Buying a ticket
+
+```lua
+chat.AddCommand("loterie", function(ply, args, raw)
+	if !ply:canAfford(TICKET_PRICE) then
+		ply:Notify("danger", "Lottery", string.format(locale.T("loterie.pas_assez"), TICKET_PRICE))
+		return
+	end
+	ply:takeMoney(TICKET_PRICE, "Lottery ticket")
+
+	local sid = ply:SteamID64()
+	tickets[sid] = (tickets[sid] or 0) + 1
+	pot = pot + TICKET_PRICE
+	save()
+
+	ply:Notify("success", "Lottery",
+		string.format(locale.T("loterie.ticket_ok"), tickets[sid], string.Comma(pot)))
+end, "Buy a lottery ticket")
+```
+
+Note the GLua syntax (`!ply:canAfford(...)`) and `takeMoney` handling the debit toast itself.
+
+## 5. The automatic draw
+
+```lua
+timer.Create("loterie_draw", DRAW_MINUTES * 60, 0, function()
+	local pool = {}
+	for sid, n in pairs(tickets) do
+		for i = 1, n do pool[#pool + 1] = sid end
+	end
+	if #pool == 0 then return end          -- nobody played: the pot rolls over
+
+	local winSid = pool[math.random(#pool)]
+	local gain = pot
+	tickets, pot = {}, POT_SEED
+	save()
+
+	local winner = player.GetBySteamID64(winSid)
+	if IsValid(winner) then
+		winner:addMoney(gain, "Lottery win")
+		chat.Broadcast("🎰 " .. string.format(locale.T("loterie.gagnant"), winner:Nick(), string.Comma(gain)))
+	else
+		chat.Broadcast("🎰 " .. locale.T("loterie.gagnant_absent"))
+	end
+end)
+```
+
+## 6. Greeting players
+
+```lua
+hook.Add("PlayerInitialSpawn", "loterie_bienvenue", function(ply)
+	timer.Simple(15, function()
+		if IsValid(ply) then
+			ply:Notify("info", "Lottery", string.format(locale.T("loterie.bienvenue"), string.Comma(pot)))
+		end
+	end)
+end)
+```
+
+## 7. Deploy & iterate
+
+```text
+1. SFTP → data/rebornstudio/cityliferp/addons/lottery/
+2. Console: addon_reload lottery
+3. addon_list → "City Lottery" v1.0: Loaded
+4. In game: /loterie, /loterie_info
+```
+
+Each `addon_reload` starts fresh from disk and cleanly re-attaches commands, timer and hook. The pot persists, that's `data.*`'s job.

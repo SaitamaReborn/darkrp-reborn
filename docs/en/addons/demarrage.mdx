@@ -1,0 +1,78 @@
+---
+title: "Your first addon"
+description: "From zero to a running addon in five minutes."
+---
+
+## Anatomy of an addon
+
+```text
+data/rebornstudio/cityliferp/addons/
+└── welcome/
+    ├── addon.json     ← manifest (optional but recommended)
+    └── main.lua       ← entry point, executed on load
+```
+
+`addon.json`:
+
+```json
+{
+	"name": "Welcome",
+	"author": "You",
+	"version": "1.0",
+	"description": "Greeting + /discord",
+	"entry": "main.lua",
+	"apiVersion": 1,
+	"enabled": true
+}
+```
+
+Without a manifest, any folder containing `main.lua` loads with defaults.
+
+## The hello-world
+
+```lua
+local DISCORD = "discord.gg/YOUR-INVITE"
+
+hook.Add("PlayerInitialSpawn", "welcome_hello", function(ply)
+	timer.Simple(8, function()
+		if IsValid(ply) then
+			ply:Notify("info", "Welcome", "Welcome to DarkRP Reborn! Type /discord.")
+		end
+	end)
+end)
+
+chat.AddCommand("discord", function(ply)
+	ply:ChatPrint("Discord: " .. DISCORD)
+end, "Show the Discord invite")
+
+util.Log("Welcome addon loaded.")
+```
+
+<Steps>
+	<Step title="Drop the folder">
+		Over SFTP (managed host) or local copy, into `data/rebornstudio/cityliferp/addons/welcome/`.
+	</Step>
+	<Step title="Load it">
+		Server console: `addon_reload` (or restart). Check with `addon_list`.
+	</Step>
+	<Step title="Test in game">
+		Reconnect: the toast fires 8 s after spawn. `/discord` answers in chat.
+	</Step>
+</Steps>
+
+## Things to know
+
+- **Your files run on the server** (host). Players see the effects (notifications, chat, money, jobs, NPCs) through the game's replication, you never write netcode.
+- **GLua syntax works**: `&&`, `||`, `!`, `!=`, `//` and `/* */`, `continue`, write like on Garry's Mod.
+- **`include("file.lua")`** loads another file from the SAME addon.
+- **Iterate = edit + `addon_reload <name>`**. Reloading cleanly tears down everything the addon created (commands, timers, hooks, NPCs, props).
+- A failing addon is set aside (`Failed`) with a `file:line` message, the server carries on.
+
+<CardGroup cols={2}>
+	<Card title="API reference" icon="book" href="/en/addons/api-reference">
+		Every hook, player method, timer, NPC, persistence call…
+	</Card>
+	<Card title="Full tutorial: the Lottery" icon="graduation-cap" href="/en/addons/tutoriel-loterie">
+		A real gameplay addon, explained line by line.
+	</Card>
+</CardGroup>

@@ -1,0 +1,183 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "DarkRP Reborn SDK",
+  "description": "Créez votre serveur et vos addons Lua pour DarkRP Reborn (s&box).",
+  "colors": {
+    "primary": "#8a38f5",
+    "light": "#b57bff",
+    "dark": "#5f21ad"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "languages": [
+      {
+        "language": "fr",
+        "groups": [
+          {
+            "group": "Découvrir",
+            "pages": [
+              "index"
+            ]
+          },
+          {
+            "group": "Héberger son serveur",
+            "pages": [
+              "serveur/heberger",
+              "serveur/configuration",
+              "serveur/mise-a-jour",
+              "serveur/proteger-scripts",
+              "serveur/mode-hd",
+              "serveur/depannage"
+            ]
+          },
+          {
+            "group": "Créer des addons",
+            "pages": [
+              {
+                "group": "Addons C# (natif)",
+                "pages": [
+                  "addons/csharp-demarrage",
+                  "addons/csharp-api",
+                  "addons/csharp-livrer"
+                ]
+              },
+              {
+                "group": "Addons Lua (GMod)",
+                "pages": [
+                  "addons/demarrage",
+                  "addons/api-reference",
+                  "addons/sandbox-limites",
+                  "addons/tutoriel-loterie"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Venir de Garry's Mod",
+            "pages": [
+              "compat/darkrp",
+              "compat/migration",
+              "compat/exemple-migration-az",
+              "compat/import-gmod",
+              "compat/import-carte"
+            ]
+          }
+        ]
+      },
+      {
+        "language": "en",
+        "groups": [
+          {
+            "group": "Discover",
+            "pages": [
+              "en/index"
+            ]
+          },
+          {
+            "group": "Host your server",
+            "pages": [
+              "en/serveur/heberger",
+              "en/serveur/configuration",
+              "en/serveur/mise-a-jour",
+              "en/serveur/depannage"
+            ]
+          },
+          {
+            "group": "Build addons",
+            "pages": [
+              {
+                "group": "C# addons (native)",
+                "pages": [
+                  "en/addons/csharp-getting-started",
+                  "en/addons/csharp-api",
+                  "en/addons/csharp-shipping"
+                ]
+              },
+              {
+                "group": "Lua addons (GMod)",
+                "pages": [
+                  "en/addons/demarrage",
+                  "en/addons/api-reference",
+                  "en/addons/sandbox-limites",
+                  "en/addons/tutoriel-loterie"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Coming from Garry's Mod",
+            "pages": [
+              "en/compat/darkrp",
+              "en/compat/import-gmod",
+              "en/compat/full-migration-example"
+            ]
+          }
+        ]
+      },
+      {
+        "language": "ru",
+        "groups": [
+          {
+            "group": "Обзор",
+            "pages": [
+              "ru/index"
+            ]
+          },
+          {
+            "group": "Ваш сервер",
+            "pages": [
+              "ru/serveur/heberger"
+            ]
+          },
+          {
+            "group": "Создание аддонов",
+            "pages": [
+              "ru/addons/demarrage"
+            ]
+          },
+          {
+            "group": "Переход с Garry's Mod",
+            "pages": [
+              "ru/compat/migration"
+            ]
+          }
+        ]
+      },
+      {
+        "language": "es",
+        "groups": [
+          {
+            "group": "Descubrir",
+            "pages": [
+              "es/index"
+            ]
+          },
+          {
+            "group": "Tu servidor",
+            "pages": [
+              "es/serveur/heberger"
+            ]
+          },
+          {
+            "group": "Crear addons",
+            "pages": [
+              "es/addons/demarrage"
+            ]
+          },
+          {
+            "group": "Vienes de Garry's Mod",
+            "pages": [
+              "es/compat/migration"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/lucaskacem/darkrp-reborn-sdk"
+    }
+  }
+}

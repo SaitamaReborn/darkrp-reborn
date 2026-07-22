@@ -1,0 +1,102 @@
+---
+title: "C# addons: API reference"
+description: "The public contract: RebornAddon, Reborn, RebornEvents, IRebornPlayer. Identical in the Dev Kit and on the real server."
+---
+
+The whole contract fits in three files, shipped identically in the game and in
+the Dev Kit (`devkit/code/Addons/`). Your addon references **only** these types -
+never the gamemode's internal classes.
+
+## `RebornAddon`: the base class
+
+```csharp
+public sealed class MyAddon : RebornAddon
+{
+	public override string Ident => "my-addon";      // permanent, lowercase-hyphens
+	public override string Name => "My addon";
+	public override string Author => "You";           // optional
+	public override string Version => "1.0";          // optional
+
+	public override void OnAddonLoaded() { }          // wire events + commands here
+	public override void OnAddonUnloaded() { }        // server shutdown
+}
+```
+
+An addon **is an s&box `Component`**: `OnStart`, `OnUpdate`, `OnFixedUpdate` work
+normally after `OnAddonLoaded`. Each addon lives on its own GameObject
+(`addon:<class>`, visible in the editor scene tree), **server side only** - it
+does not exist on players' machines.
+
+## `RebornEvents`: game events
+
+Same anchor points as the Lua/GMod hooks, strongly typed:
+
+```csharp
+RebornEvents.ServerReady   += () => { };                          // boot finished
+RebornEvents.PlayerJoined  += ( IRebornPlayer p ) => { };         // first spawn
+RebornEvents.PlayerSpawned += ( IRebornPlayer p ) => { };         // every (re)spawn
+RebornEvents.PlayerLeft    += ( IRebornPlayer p ) => { };         // disconnect
+RebornEvents.PlayerDied    += ( IRebornPlayer p ) => { };         // death
+RebornEvents.PlayerChat    += ( RebornChatEvent e ) => { };       // e.Speaker, e.Text (observe-only)
+RebornEvents.JobChanged    += ( p, oldJob, newJob ) => { };
+```
+
+A handler that throws is isolated: it takes down neither the other addons nor
+the server (the error goes to the server log).
+
+## `Reborn`: the static API
+
+```csharp
+// Players
+IEnumerable<IRebornPlayer> all = Reborn.Players;
+IRebornPlayer p = Reborn.FindPlayer( "Alice" );      // name (prefix) or SteamID64
+
+// Chat & notifications
+Reborn.Broadcast( "Server-wide announcement" );
+Reborn.BroadcastNotify( "Title", "Message", RebornNotifyType.Info );
+
+// Chat commands (/mycommand) - native commands then Lua addons take priority:
+// a C# addon can never shadow a built-in command.
+Reborn.RegisterChatCommand( "mycommand", "Description", ( player, args ) => { }, Ident );
+
+// Timers (server side, pumped by the loader)
+Reborn.After( 10f, () => { } );                      // once, in 10 s
+Reborn.Every( 300f, () => { } );                     // every 5 min
+
+// Persistence: one JSON blob per addon, survives restarts
+Reborn.SaveData( Ident, json );
+string json = Reborn.LoadData( Ident );              // null when absent
+
+// Prefixed server log [addon:ident]
+Reborn.Log( Ident, "message" );
+```
+
+## `IRebornPlayer`: the player
+
+```csharp
+p.Name          // display name (Steam name on the real server)
+p.SteamId       // SteamID64 as string
+p.Job           // job name ("Policier", ...)
+p.Money         // cash on hand
+p.Language      // their UI language ("fr", "en", ...)
+p.GameObject    // real pawn on the server; null in the Dev Kit
+
+p.GiveMoney( 100, "Reward" );              // server-authoritative
+bool ok = p.TakeMoney( 50, "Fine" );       // false if they can't afford it (takes nothing)
+p.Notify( "Title", "Message", RebornNotifyType.Success );
+p.Chat( "Private line in their chat" );
+```
+
+`GiveMoney`/`TakeMoney` go through the same anti-cheat path as the rest of the
+economy (host gate + guards). No addon can mint money client side.
+
+## Rules and limits (v1)
+
+- **Server only**: no client UI and no custom RPCs in v1. For visual feedback use
+  `Notify`/`Chat`. (Client addon UI comes in a future contract iteration.)
+- `p.GameObject` is the real pawn: positions, spawning props nearby... Always
+  null-check it (Dev Kit) and keep mutations server side.
+- Never touch the contract files (`code/Addons/`) or the game's internal types:
+  that is review criterion #1.
+- Player-facing text: `p.Language` gives you the player's language if you want to
+  localize your messages (the game ships 10 languages).

@@ -1,0 +1,52 @@
+---
+title: "Configurer son serveur"
+description: "Identité, staff, économie : tout se règle par fichiers JSON ou depuis le panel admin en jeu."
+---
+
+Toute la configuration vit dans `data/rebornstudio/cityliferp/` sous forme de **JSON lisibles**. Le panel admin en jeu (`F6` pour le staff) écrit dans les mêmes fichiers, modifiez où vous préférez.
+
+## Identité du serveur, `server_config.json`
+
+```json
+{
+	"ServerName": "Mon Serveur RP",
+	"MotdTitle": "Bienvenue !",
+	"MotdBody": "Roleplay sérieux. Pas de RDM, pas de metagaming.",
+	"DiscordUrl": "https://discord.gg/xxxx",
+	"LogoUrl": ""
+}
+```
+
+Le nom et le MOTD s'affichent à l'écran d'accueil de chaque joueur.
+
+## Staff, `admins.json`
+
+```json
+{
+	"admins": ["76561198000000001"],
+	"moderators": ["76561198000000002"]
+}
+```
+
+Les SteamID64 listés reçoivent leur rang à la connexion. Les commandes en jeu (`/admin add`, `/mod add`) éditent ce fichier pour vous.
+
+## Économie et gameplay, panel admin
+
+Salaires, montants de départ, réglages des boucles de jeu : onglets **Économie** et **Gameplay** du panel admin en jeu (persistés dans `panel_economy.json` / `panel_settings.json`).
+
+## Addons, `addons/config.json`
+
+```json
+{ "enabled": true }
+```
+
+Passez `enabled` à `false` pour couper TOUT le système d'addons Lua (diagnostic).
+
+## Commandes console utiles
+
+| Commande | Effet |
+|---|---|
+| `addon_list` | Liste les addons + état (Loaded / Failed + message d'erreur) |
+| `addon_reload [nom]` | Recharge un addon (ou tous) depuis le disque |
+| `lua_run <code>` | Exécute du Lua directement (console REPL, réservé au host) |
+| `lua_reset` | Réinitialise l'état de la console Lua |

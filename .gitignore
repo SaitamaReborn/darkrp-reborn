@@ -1,0 +1,11 @@
+# s&box / .NET build artifacts
+.sbox/
+obj/
+bin/
+*.user
+*.sln
+.vs/
+
+# OS
+Thumbs.db
+.DS_Store

@@ -1,0 +1,44 @@
+---
+title: "Aloja tu servidor"
+description: "Un servidor dedicado de DarkRP Reborn funcionando, en un hosting o en tu propia máquina."
+---
+
+## Opción A, hosting gestionado (recomendado)
+
+[Physgun](https://physgun.com) (o cualquier hosting con servidores dedicados **s&box**) funciona directamente:
+
+<Steps>
+	<Step title="Crea un servidor s&box">
+		En el panel del hosting, elige **s&box** (dedicated server).
+	</Step>
+	<Step title="Indica el modo de juego">
+		En la configuración de arranque, escribe:
+		```text
+		+game rebornstudio.cityliferp
+		```
+		El identificador del paquete es `rebornstudio.cityliferp` (nombre técnico interno; el juego se llama DarkRP Reborn).
+	</Step>
+	<Step title="Arráncalo">
+		El servidor descarga el modo de juego y el mapa automáticamente en el primer arranque.
+	</Step>
+</Steps>
+
+## Opción B, auto-alojado
+
+En Windows o Linux con [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD):
+
+```bash
+steamcmd +login anonymous +app_update 1892930 validate +quit
+./sbox-server +game rebornstudio.cityliferp
+```
+
+## Rutas importantes
+
+| Ruta | Función |
+|---|---|
+| `data/rebornstudio/cityliferp/` | **Todos los datos de tu servidor** (config, guardados, addons) |
+| `data/rebornstudio/cityliferp/addons/` | Tus addons de Lua |
+| `data/rebornstudio/cityliferp/admins.json` | Tu staff (SteamID64) |
+| `logs/` | Registros del servidor (necesarios para depurar addons) |
+
+El **primer jugador** que se conecta a un servidor sin staff recibe automáticamente SuperAdmin.

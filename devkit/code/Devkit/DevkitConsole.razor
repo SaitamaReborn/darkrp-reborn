@@ -1,0 +1,49 @@
+@namespace DarkRPReborn.Devkit
+@using System
+@using System.Collections.Generic
+@using Sandbox
+@using Sandbox.UI
+@inherits PanelComponent
+
+<root>
+	<div class="dk-console">
+		<div class="dk-head">
+			<span class="dk-title">DARKRP REBORN - DEV KIT</span>
+			<span class="dk-sub">console serveur simulée</span>
+		</div>
+		<div class="dk-lines">
+			@foreach ( var line in Lines )
+			{
+				<div class="dk-line">@line</div>
+			}
+		</div>
+		<div class="dk-hint">F1/console : devkit_say "/coucou" - devkit_join Nom - csaddon_list</div>
+	</div>
+</root>
+
+@code
+{
+	// Ring buffer shared with the simulator. Static so any devkit code can log
+	// without holding a panel reference.
+	const int MaxLines = 26;
+	static readonly List<string> _lines = new();
+	static int _version;
+
+	public static void Push( string line )
+	{
+		_lines.Add( $"[{DateTime.Now:HH:mm:ss}] {line}" );
+		while ( _lines.Count > 200 ) _lines.RemoveAt( 0 );
+		_version++;
+	}
+
+	IEnumerable<string> Lines
+	{
+		get
+		{
+			int start = Math.Max( 0, _lines.Count - MaxLines );
+			for ( int i = start; i < _lines.Count; i++ ) yield return _lines[i];
+		}
+	}
+
+	protected override int BuildHash() => _version;
+}

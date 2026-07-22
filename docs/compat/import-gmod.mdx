@@ -1,0 +1,64 @@
+---
+title: "Importer des modèles du Workshop GMod"
+description: "gmod-import : du Workshop Garry's Mod au modèle s&box, semi-automatisé."
+---
+
+Beaucoup d'addons GMod référencent des modèles Source (`models/props_xxx/… .mdl`) venus du Workshop. `tools/gmod-import` (dans le SDK) automatise le pipeline de conversion, étape par étape.
+
+## Prérequis (sur votre PC, pas sur le serveur)
+
+| Outil | Rôle | Obligatoire ? |
+|---|---|---|
+| Python 3.10+ | Fait tourner l'outil | Oui |
+| [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD) | Télécharge l'item Workshop (login anonyme) | Pour `download` |
+| [Crowbar](https://github.com/ZeqMacaw/Crowbar/releases) | Décompile les `.mdl` Source 1 | Pour `decompile` |
+| [Blender](https://www.blender.org) + [Blender Source Tools](https://steamreview.org/BlenderSourceTools/) | Convertit SMD → FBX | Pour `convert` |
+
+L'extraction GMA, elle, ne demande **aucun outil** (parseur intégré).
+
+## Pipeline
+
+```bash
+# Tout-en-un (chaque étape se dégrade proprement si un outil manque) :
+python gmod_import.py all 123456789        # ← l'ID de l'item Workshop
+
+# Ou étape par étape :
+python gmod_import.py download 123456789
+python gmod_import.py extract chemin/vers/addon.gma
+python gmod_import.py decompile work/extracted/.../models/props/tonneau.mdl
+python gmod_import.py convert  .../tonneau_decompiled/tonneau.smd tonneau.fbx
+```
+
+## Finalisation dans s&box
+
+<Steps>
+	<Step title="Importez le FBX">
+		Glissez le `.fbx` dans l'éditeur s&box : il est converti en `.vmdl` automatiquement.
+		Rangez-le par exemple sous `models/imports/`.
+	</Step>
+	<Step title="Enregistrez la correspondance">
+		```bash
+		python gmod_import.py manifest "models/props/tonneau.mdl" "models/imports/tonneau.vmdl"
+		```
+	</Step>
+	<Step title="Déposez le manifeste sur le serveur">
+		`work/manifest.json` → `data/rebornstudio/cityliferp/addons/_models/manifest.json`
+	</Step>
+	<Step title="C'est traduit automatiquement">
+		Tout `ents.SpawnProp("models/props/tonneau.mdl", …)` d'un addon charge maintenant
+		votre `.vmdl`. Aucun code d'addon à modifier.
+	</Step>
+</Steps>
+
+## Modèles riggés, textures, matériaux : automatiques
+
+Le pipeline de conversion intégré traite aussi les **modèles animés** (personnages, viewmodels) : squelettes et animations suivent, textures et matériaux sont générés dans le même passage.
+
+```bash
+./setup_s2converter.sh                                    # une seule fois
+python3 gmod_import.py s2 models/mon_modele.mdl --out ./mon_addon
+```
+
+Vous obtenez le modèle, ses matériaux et ses textures prêts pour l'éditeur s&box, y compris pour les modèles à squelette.
+
+Respectez les **droits des auteurs** : n'importez que du contenu que vous avez le droit de redistribuer.

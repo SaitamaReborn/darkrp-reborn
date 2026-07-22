@@ -1,0 +1,54 @@
+---
+title: "Compatibilité DarkRP (GMod)"
+description: "La compatibilité GMod, API par API, mesurée sur de vrais addons publics."
+---
+
+Nous avons fait tourner de **vrais fichiers publics** dans le moteur pour établir cette matrice :
+
+- ✅ Les **10 fichiers** `darkrp_customthings` officiels de [FPtje/darkrpmodification](https://github.com/FPtje/darkrpmodification) (jobs, food, shipments, categories, entities, agendas, groupchats, ammo, demotegroups, doorgroups) **chargent sans modification**.
+- ✅ L'addon public [DarkRP-Mining](https://github.com/MrDoctorSirLordSleepy/DarkRP-Mining) charge tel quel, sa config, ses commandes et ses fichiers d'entités passent (les entités restent inertes, voir plus bas).
+
+## Syntaxe GLua
+
+**100 % supportée** :
+`&&` `||` `!` `!=`, commentaires `//` et `/* */`, mot-clé `continue` (validé dans `while`, `for`, `for-in`, `repeat`), motifs Lua fidèles (`string.find/gsub/match/gmatch`) et `string.format` complet.
+
+## Matrice par bibliothèque
+
+| API GMod | Statut | Détail |
+|---|---|---|
+| `DarkRP.createJob` / `AddExtraTeam` | ✅ Fonctionnel | color, description, salary, max, category, vote honorés. `model`, `weapons` (classes Source), `ammo`, `hasLicense`, `candemote` : ignorés avec log. Retourne un index d'équipe (`TEAM_X`). |
+| `DarkRP.createFood` | ✅ Fonctionnel | Devient un item consommable (faim). |
+| `DarkRP.defineChatCommand` | ✅ Fonctionnel | Branché sur le chat du jeu. |
+| `DarkRP.notify / notifyAll / formatMoney` | ✅ Fonctionnel | Toasts natifs du jeu. |
+| `ply:getDarkRPVar("money"/"job"/"rpname")`, `addMoney`, `changeTeam` | ✅ Fonctionnel | Argent host-autoritaire. |
+| `hook.*`, `timer.*`, `player.*`, `concommand.Add` | ✅ Fonctionnel | Conventions GMod. `concommand` → commande chat du même nom. |
+| `string./table./math.` extensions GMod | ✅ Fonctionnel | Explode, HasValue, Clamp, Comma… |
+| `file.*` | 🟡 Adapté | Lit/écrit dans le stockage isolé de l'addon (pas d'accès disque libre). |
+| `DarkRP.createShipment` | ✅ Fonctionnel | Shipments repris dans l'économie du jeu. |
+| `DarkRP.createEntity` / SENT / SWEP | ✅ Fonctionnel | Entités et armes scriptées jouables (money printer et armes custom validés en jeu). |
+| `resource.*`, `util.AddNetworkString`, `RunConsoleCommand`, `CreateConVar` | ✅ Compatibles | Traduits quand un équivalent existe, neutralisés proprement sinon. |
+| `sql.*` | ✅ Fonctionnel | Base SQL isolée par addon : requêtes, tables, transactions. |
+| `net.*`, vgui/derma, HUD client | ✅ Fonctionnel | Réseau client-serveur, fenêtres vgui, HUD `draw`/`surface` rendus nativement. |
+| `render.*`, `cam.Start3D2D` | 🎨 Guidé | Effets 3D custom : le rapport de migration liste chaque usage, fichier et ligne. |
+| Modèles Source (`models/*.mdl`) | 🟡 Via importeur | [Outil gmod-import](/compat/import-gmod) + manifeste de correspondance. |
+
+## Porter un addon : la méthode
+
+<Steps>
+	<Step title="Repérez les fichiers serveur">
+		Pour un serveur entier, [reborn-migrate](/compat/migration) fait tout automatiquement.
+		À la main : `lua/autorun/**`, `cl_*.lua` et `lua/entities/` sont tous pris en charge.
+	</Step>
+	<Step title="Créez le dossier addon">
+		`addons/mon-port/main.lua` qui fait des `include()` de chaque fichier serveur copié
+		dans le dossier.
+	</Step>
+	<Step title="Chargez et lisez les logs">
+		`addon_reload mon-port` : chaque appel non supporté est loggué `[compat] …`, vous savez exactement ce qui manque.
+	</Step>
+	<Step title="Traitez les modèles">
+		Chaque `models/*.mdl` référencé → [gmod-import](/compat/import-gmod), ou remplacez
+		par un modèle s&box (`models/citizen_props/…`).
+	</Step>
+</Steps>

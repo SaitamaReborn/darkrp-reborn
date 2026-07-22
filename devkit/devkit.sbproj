@@ -1,0 +1,46 @@
+{
+  "Title": "DarkRP Reborn - Dev Kit",
+  "Type": "game",
+  "Org": "rebornstudio",
+  "Ident": "reborn_devkit",
+  "Schema": 1,
+  "IncludeSourceFiles": false,
+  "Resources": "",
+  "PackageReferences": [],
+  "EditorReferences": [],
+  "Mounts": [],
+  "IsStandaloneOnly": false,
+  "Metadata": {
+    "MaxPlayers": 4,
+    "MinPlayers": 1,
+    "TickRate": 50,
+    "GameNetworkType": "Multiplayer",
+    "MapSelect": "Unrestricted",
+    "MapList": [],
+    "RankType": "None",
+    "PerMapRanking": false,
+    "LeaderboardType": "None",
+    "CsProjName": "",
+    "StartupScene": "scenes/devkit.scene",
+    "ControlModes": {
+      "Keyboard": true,
+      "VR": false,
+      "Gamepad": false
+    },
+    "Compiler": {
+      "RootNamespace": "Sandbox",
+      "DefineConstants": "SANDBOX",
+      "NoWarn": "1701;1702;1591;",
+      "WarningsAsErrors": "",
+      "TreatWarningsAsErrors": false,
+      "Nullables": false,
+      "ReleaseMode": "Release",
+      "AssemblyReferences": [],
+      "ReplacementDirectives": {
+        ".Server.cs": "SERVER"
+      },
+      "IgnoreFolders": [],
+      "DistinctAssemblyReferences": []
+    }
+  }
+}

@@ -1,0 +1,123 @@
+---
+title: "Real example: a GMod server migrated end to end"
+description: "A full session, command by command: 68 public addons + a map + a model pack, from the garrysmod/ folder to a live s&box server."
+---
+
+This guide is not theoretical: every command below was actually run, and every number
+comes from the tools' real output. The source server is rebuilt from public content:
+the base [DarkRP gamemode (FPtje)](https://github.com/FPtje/DarkRP) and the 68
+open-source addons from [OverlordAkise/darkrp-addons](https://github.com/OverlordAkise/darkrp-addons)
+(the "luctus" collection: chat, jobs, quests, taser, scoreboard, anti-cheat...).
+
+## 0. The source server
+
+A GMod server is a `garrysmod/` folder. Rebuild one (or start from yours):
+
+```bash
+git clone --depth 1 https://github.com/FPtje/DarkRP.git garrysmod/gamemodes/darkrp
+git clone --depth 1 https://github.com/OverlordAkise/darkrp-addons.git
+cp -r darkrp-addons/luctus_* garrysmod/addons/        # 68 addons
+# + your cfg/server.cfg, sv.db, maps/...
+```
+
+## 1. The one-command migration
+
+```bash
+python tools/reborn-migrate/reborn_migrate.py "./garrysmod" --out ./migration --name "My Server"
+```
+
+Output of this session (68 real addons):
+
+| Step | Real output |
+|---|---|
+| Addons | **68 converted**, 67/68 with recognized server logic |
+| Watch points | 63, almost all "custom UI to redo" (listed per addon in the report) |
+| `sv.db` | absent from the source server, step skipped cleanly |
+| Models | **1,059 `models/*.mdl` collected** into `models_referenced.txt` |
+| Config | `server.cfg` becomes `server_config.json` (name, MOTD) |
+| Report | `RAPPORT_MIGRATION.md` written |
+
+Pure-gameplay addons (`luctus_taser`, `luctus_whitelist`, `luctus_warn`,
+`luctus_statistics`...) pass with no remark. The UI-heavy ones (`luctus_scoreboard`,
+`luctus_wheel`) get flagged: the logic migrates, the screens are redone in `vgui`
+(expect most of the manual work there).
+
+## 2. The map
+
+```bash
+python tools/map-import/map_import.py extract "gm_construct.bsp" --out ./map_out
+```
+
+Real output on `gm_construct`:
+
+```
+- BSP version 20, header read
+- 599 embedded assets extracted into embedded/
+- 1227 entities in entities.json  (33 spawns, 0 doors, 137 lights)
+- import plan written: PLAN_IMPORT_CARTE.md
+```
+
+The import plan tells you what to do with the geometry (BSPSource, then s&box
+Hammer). Spawns and lights are usable as-is.
+
+## 3. The 3D models
+
+```bash
+python tools/gmod-import/gmod_import.py all 1338403285   # a DarkRP printers pack (Workshop)
+```
+
+Two lessons learned during this session, so you do not have to:
+
+- **SteamCMD often delivers a `*_legacy.bin`** instead of a `.gma`: it is an
+  LZMA-compressed GMA. The tool detects and decompresses it by itself; if you extract
+  manually, feed the `.bin` straight to `extract` (no renaming needed).
+- Use **`all`** (not `extract` with a glob): the tool locates the downloaded file
+  itself, whatever its name.
+
+On this pack: extraction OK ("DarkRP Money, armor and ammo Printer", 55 files),
+then Crowbar to SMD and Blender to FBX when those tools are installed (each step
+degrades cleanly otherwise). The final `manifest.json` does the automatic mapping:
+
+```json
+{ "models/props/xxx.mdl": "models/imports/xxx.vmdl" }
+```
+
+## 4. Shipping to the server
+
+Typical Physgun-style host (SFTP, port 2022). The SFTP user embeds the server UUID;
+grab it from the panel, the plain email is not enough:
+
+```bash
+sftp -P 2022 you@example.com.962f142b@chi-s-game-19.physgun.com
+sftp> mkdir data/rebornstudio/cityliferp/addons
+sftp> put -r migration/addons/* data/rebornstudio/cityliferp/addons/
+```
+
+(287 files / 38 MB in this session. Tip: a `.tar.gz` + remote extract only works if
+your host gives you a real shell; over pure SFTP the recursive upload works fine.)
+
+## 5. Gamemode + verification
+
+<Steps>
+	<Step title="Switch the server's game">
+		Host panel, Game field: `rebornstudio.cityliferp` (a fresh server often ships
+		on `facepunch.sandbox`). Restart.
+	</Step>
+	<Step title="Verify loading">
+		Server console: `addon_list` - every migrated addon must show `Loaded`.
+		A failing addon is isolated and logged; it never takes the server down.
+	</Step>
+	<Step title="Work the report">
+		`RAPPORT_MIGRATION.md`: handle the red items (custom UI) one by one, test in game.
+	</Step>
+</Steps>
+
+## Honest scorecard of this session
+
+| Works by itself | Needs a human |
+|---|---|
+| 68/68 addons converted to Reborn structure | 63 custom-UI warnings (surface/render) |
+| Server logic, hooks, commands, net, sql | Redo the screens in `vgui` |
+| Map: embedded assets + entities + spawns | Geometry via BSPSource + Hammer |
+| GMA/`_legacy.bin` extracted with no external tool | Crowbar + Blender to finish `.mdl` files |
+| Server config carried over | Game selection lives in the host panel |

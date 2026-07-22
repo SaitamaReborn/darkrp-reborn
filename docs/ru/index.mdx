@@ -1,0 +1,48 @@
+---
+title: "DarkRP Reborn SDK"
+description: "Запустите свой ролевой сервер на s&box и создавайте аддоны на Lua, как в Garry's Mod, только лучше."
+---
+
+**DarkRP Reborn**, это ролевая игра нового поколения на [s&box](https://sbox.game), преемнике Garry's Mod от Facepunch. Этот SDK даёт вам всё необходимое:
+
+<CardGroup cols={2}>
+	<Card title="Запустить сервер" icon="server" href="/ru/serveur/heberger">
+		Выделенный сервер DarkRP Reborn примерно за 15 минут.
+	</Card>
+	<Card title="Создавать аддоны на Lua" icon="code" href="/ru/addons/demarrage">
+		Язык GMod, синтаксис GLua (`&&`, `||`, `!`, `continue`), знакомый API.
+	</Card>
+	<Card title="Совместимость с DarkRP" icon="recycle" href="/ru/compat/migration">
+		`DarkRP.createJob`, `AddExtraTeam`, хуки GMod, ваши файлы загружаются как есть.
+	</Card>
+	<Card title="Перенос сервера GMod" icon="cube" href="/ru/compat/migration">
+		Одна команда переносит весь ваш сервер Garry's Mod на s&box.
+	</Card>
+</CardGroup>
+
+## Как это работает
+
+Ваши Lua-скрипты из GMod работают как есть, включая синтаксис GLua и знакомый API:
+
+Ваши аддоны, это просто папки с `.lua`-файлами, помещённые на сервер: **без компиляции, без повторной публикации**.
+
+```lua
+-- main.lua, первый аддон в 6 строк
+hook.Add("PlayerInitialSpawn", "hello", function(ply)
+	timer.Simple(8, function()
+		if IsValid(ply) then ply:ChatPrint("Добро пожаловать!") end
+	end)
+end)
+```
+
+Перезагрузка на лету через `addon_reload` в консоли сервера. Сломанный аддон изолируется и логируется, **он никогда не роняет сервер**.
+
+## Начните с простого
+
+Для новичков всё продумано максимально просто: скопируйте `template/mon-addon/` на свой сервер, выполните `addon_reload`, напишите `/hello` в игре. Готово.
+
+## Принципы проекта
+
+- **Ваши аддоны, ваш сервер.** SDK не навязывает правила: создавайте любые профессии и системы.
+- **Безопасность прежде всего.** Каждый аддон работает в изолированной песочнице.
+- **Совместимость, измеренная на реальных аддонах.** [Подробности о миграции](/ru/compat/migration).

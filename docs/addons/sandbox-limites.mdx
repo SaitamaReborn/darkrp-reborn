@@ -1,0 +1,32 @@
+---
+title: "Bac à sable & limites"
+description: "Ce qu'un addon peut faire, ne peut pas faire, et pourquoi."
+---
+
+## Le modèle de sécurité
+
+Chaque addon tourne dans un **état Lua isolé** : ses variables globales, ses hooks, ses timers n'interfèrent jamais avec ceux d'un autre addon. À l'unload/reload, TOUT ce qu'il a créé est démonté (commandes, timers, hooks, PNJ, props).
+
+| Protection | Détail |
+|---|---|
+| **Pas d'accès disque libre** | `io` et `os` (fichiers) n'existent pas. `data.*`/`file.*` écrivent uniquement dans `addons/<votre-dossier>/storage/`. `include()` ne sort pas du dossier de l'addon. |
+| **Budget CPU par appel** | Un hook/timer/commande qui dépasse ~50 ms est tué avec l'erreur « budget CPU dépassé ». Une boucle infinie ne fige jamais le serveur. |
+| **Pas de code natif** | Pas de `require`, pas de bibliothèques externes, pas de réflexion .NET. L'API exposée est la seule surface. |
+| **Erreurs confinées** | Une exception dans votre code met VOTRE addon en `Failed`, le serveur et les autres addons continuent. |
+| **Argent host-autoritaire** | `addMoney`/`takeMoney` passent par les mêmes garde-fous que le reste du jeu. |
+
+## Feuille de route et exclusions volontaires
+
+| Périmètre | Statut |
+|---|---|
+| **Effets 3D custom** (`render.*`, `cam.Start3D2D`) | Sur la feuille de route ; le rapport de migration liste chaque usage. |
+| **Requêtes HTTP sortantes** | Bloquées volontairement (sécurité serveur), les callbacks d'échec sont appelés. |
+| **Code natif / bibliothèques externes** | Exclu volontairement : l'API exposée est la seule surface. |
+
+## Bonnes pratiques
+
+- **Jamais de travail lourd dans `Think`** (50 Hz), préférez `timer.Create` à 1-30 s.
+- **Sauvegardez peu souvent** : `data.Set` écrit sur disque ; groupez vos écritures.
+- **Vérifiez `IsValid(ply)`** dans tout callback différé (le joueur a pu partir).
+- **Préfixez vos clés locale** (`monaddon.xxx`) et vos identifiants de hooks/timers pour éviter les collisions avec d'autres addons.
+- **fr + en systématiquement** via `locale.Register`, vos utilisateurs ne sont pas tous francophones.

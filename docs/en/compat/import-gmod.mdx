@@ -1,0 +1,52 @@
+---
+title: "Importing GMod Workshop models"
+description: "gmod-import: from the Garry's Mod Workshop to an s&box model, semi-automated."
+---
+
+Many GMod addons reference Source models (`models/props_xxx/… .mdl`) from the Workshop. `tools/gmod-import` (in the SDK) automates the conversion pipeline step by step.
+
+## Prerequisites (on your PC, not the game server)
+
+| Tool | Role | Required? |
+|---|---|---|
+| Python 3.10+ | Runs the tool | Yes |
+| [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD) | Downloads the Workshop item (anonymous login) | For `download` |
+| [Crowbar](https://github.com/ZeqMacaw/Crowbar/releases) | Decompiles Source 1 `.mdl` | For `decompile` |
+| [Blender](https://www.blender.org) + [Blender Source Tools](https://steamreview.org/BlenderSourceTools/) | Converts SMD → FBX | For `convert` |
+
+GMA extraction itself needs **no external tool** (built-in parser).
+
+## Pipeline
+
+```bash
+python gmod_import.py all 123456789        # ← the Workshop item ID
+
+# Or step by step:
+python gmod_import.py download 123456789
+python gmod_import.py extract path/to/addon.gma
+python gmod_import.py decompile work/extracted/.../models/props/barrel.mdl
+python gmod_import.py convert  .../barrel_decompiled/barrel.smd barrel.fbx
+```
+
+## Finishing in s&box
+
+1. **Import the FBX**, drag it into the s&box editor (auto-converts to `.vmdl`), e.g. under `models/imports/`.
+2. **Record the mapping**:
+	```bash
+	python gmod_import.py manifest "models/props/barrel.mdl" "models/imports/barrel.vmdl"
+	```
+3. **Drop the manifest on the server**, `work/manifest.json` → `data/rebornstudio/cityliferp/addons/_models/manifest.json`.
+4. **Automatic translation**, every `ents.SpawnProp("models/props/barrel.mdl", …)` now loads your `.vmdl`. No addon code changes.
+
+## Rigged models, textures, materials: automatic
+
+The built-in conversion pipeline also handles **animated models** (characters, viewmodels): skeletons and animations follow, textures and materials are generated in the same pass.
+
+```bash
+./setup_s2converter.sh                                    # once
+python3 gmod_import.py s2 models/my_model.mdl --out ./my_addon
+```
+
+You get the model, its materials and its textures ready for the s&box editor, skeletal models included.
+
+Respect **authors' rights**: only import content you are allowed to redistribute.

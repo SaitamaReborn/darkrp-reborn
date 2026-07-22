@@ -1,0 +1,44 @@
+---
+title: "Запуск сервера"
+description: "Работающий выделенный сервер DarkRP Reborn, у хостера или на своей машине."
+---
+
+## Вариант A, управляемый хостинг (рекомендуется)
+
+[Physgun](https://physgun.com) (или любой хостинг с выделенными серверами **s&box**) работает сразу:
+
+<Steps>
+	<Step title="Создайте сервер s&box">
+		В панели хостинга выберите **s&box** (dedicated server).
+	</Step>
+	<Step title="Укажите игровой режим">
+		В настройках запуска пропишите:
+		```text
+		+game rebornstudio.cityliferp
+		```
+		Идентификатор пакета, `rebornstudio.cityliferp` (внутреннее техническое имя; игра называется DarkRP Reborn).
+	</Step>
+	<Step title="Запустите">
+		Сервер сам скачает игровой режим и карту при первом запуске.
+	</Step>
+</Steps>
+
+## Вариант B, свой хостинг
+
+На Windows или Linux со [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD):
+
+```bash
+steamcmd +login anonymous +app_update 1892930 validate +quit
+./sbox-server +game rebornstudio.cityliferp
+```
+
+## Важные пути
+
+| Путь | Назначение |
+|---|---|
+| `data/rebornstudio/cityliferp/` | **Все данные вашего сервера** (конфиг, сохранения, аддоны) |
+| `data/rebornstudio/cityliferp/addons/` | Ваши аддоны на Lua |
+| `data/rebornstudio/cityliferp/admins.json` | Ваш персонал (SteamID64) |
+| `logs/` | Логи сервера (нужны для отладки аддонов) |
+
+Первый подключившийся игрок на сервере без персонала автоматически получает SuperAdmin.

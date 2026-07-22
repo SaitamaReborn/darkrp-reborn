@@ -1,0 +1,54 @@
+---
+title: "Dépannage"
+description: "Les pannes classiques et leur diagnostic, du plus fréquent au plus rare."
+---
+
+## Réflexe n°1 : les logs
+
+Tout ce qui concerne les addons est préfixé dans le log serveur :
+
+```text
+[Lua] 2 addon(s) chargé(s), 1 en erreur, 0 désactivé(s).
+[Lua:loterie] ERREUR au chargement : [string "Loterie de la Ville/main.lua"]:12: '=' expected
+```
+
+Le format `fichier:ligne` pointe l'erreur exacte. `addon_list` en console rappelle l'état de chaque addon sans fouiller les logs.
+
+## Problèmes fréquents
+
+<AccordionGroup>
+	<Accordion title="Mon addon n'apparaît pas dans addon_list">
+		Vérifiez l'emplacement exact : `data/rebornstudio/cityliferp/addons/<dossier>/main.lua`.
+		Le dossier doit contenir `main.lua` (ou l'`entry` déclaré dans `addon.json`).
+		Un `addon.json` mal formé (virgule en trop…) met l'addon en `Failed` avec le détail.
+	</Accordion>
+	<Accordion title="Addon en Failed après modification">
+		`addon_list` affiche l'erreur (fichier:ligne). Corrigez puis `addon_reload <nom>`, pas besoin de redémarrer le serveur.
+	</Accordion>
+	<Accordion title="La commande /macommande dit « inconnue »">
+		1. L'addon qui la déclare est-il `Loaded` ?
+		2. Les commandes NATIVES du gamemode ont priorité : si le nom existe déjà (ex : `/help`),
+		votre commande ne peut pas le remplacer, choisissez un autre nom.
+	</Accordion>
+	<Accordion title="« budget CPU dépassé » dans les logs">
+		Un de vos hooks/timers boucle trop longtemps (boucle infinie, calcul massif).
+		Le serveur s'est protégé en tuant l'appel. Découpez le travail (timers) ou optimisez.
+	</Accordion>
+	<Accordion title="Le serveur joue une vieille version du gamemode">
+		C'est le piège du cache, voir [Mettre à jour](/serveur/mise-a-jour).
+	</Accordion>
+	<Accordion title="Les joueurs ne voient pas un métier ajouté par addon">
+		Les métiers d'addon sont répliqués automatiquement à la connexion. Un joueur déjà
+		connecté AVANT le chargement de l'addon doit se reconnecter (ou attendez le prochain reload).
+	</Accordion>
+</AccordionGroup>
+
+## Isoler un addon fautif
+
+1. `addons/config.json` → `"enabled": false` + restart : le serveur tourne-t-il sain sans addons ?
+2. Réactivez, puis mettez `"enabled": false` dans l'`addon.json` de chaque addon suspect, un par un.
+3. `addon_reload` entre chaque essai.
+
+## Demander de l'aide
+
+Ouvrez un ticket sur le Discord avec : le message `[Lua:…]` complet, votre `addon.json`, et la sortie d'`addon_list`.

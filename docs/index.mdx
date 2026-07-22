@@ -1,0 +1,85 @@
+---
+title: "DarkRP Reborn SDK"
+description: "Migrez votre serveur Garry's Mod vers s&box en quelques minutes. Addons, jobs, base de données, HUD : tout suit."
+---
+
+## Votre serveur GMod, sur GMod 2, en quelques minutes
+
+Vous avez passé des années à construire votre serveur DarkRP, SCP-RP ou MilitaryRP sur Garry's Mod. **Ne le laissez pas mourir avec GMod 1.** Une commande, et tout votre serveur passe sur [s&box](https://sbox.game) :
+
+```bash
+python3 reborn_migrate.py "C:/serveurs/garrysmod"
+```
+
+<Card title="Migrer tout mon serveur GMod maintenant" icon="rocket" href="/compat/migration" horizontal>
+	Addons, jobs, économie, base de données, modèles, HUD : l'outil convertit tout, fusionne ce qui doit l'être, et vous remet un rapport clair. Vos joueurs retrouvent LEUR serveur.
+</Card>
+
+<CardGroup cols={3}>
+	<Card title="55/72" icon="circle-check">
+		addons d'un vrai serveur chargés tels quels lors du test public (suite luctus + gamemode complet)
+	</Card>
+	<Card title="1 commande" icon="terminal">
+		inventaire, conversion, compat, rapport, script de déploiement : 9 étapes automatiques
+	</Card>
+	<Card title="HUD 1:1" icon="gauge-high">
+		votre HUD custom GMod s'affiche nativement, sans le recoder
+	</Card>
+</CardGroup>
+
+## Et ensuite, tout ce qu'il faut pour durer
+
+**DarkRP Reborn** est le roleplay urbain nouvelle génération sur s&box, l'héritier de Garry's Mod par Facepunch. Le SDK vous donne :
+
+<CardGroup cols={2}>
+	<Card title="Héberger votre serveur" icon="server" href="/serveur/heberger">
+		Un serveur dédié DarkRP Reborn en ~15 minutes, chez Physgun ou chez vous.
+	</Card>
+	<Card title="Créer des addons en C# (Dev Kit)" icon="cubes" href="/addons/csharp-demarrage">
+		Le modèle natif s&box : codez contre l'API publique du jeu, testez dans l'éditeur, livrez — sans le code source du gamemode.
+	</Card>
+	<Card title="Créer des addons en Lua" icon="code" href="/addons/demarrage">
+		Le langage de GMod, la syntaxe GLua incluse (`&&`, `||`, `!`, `continue`), une API familière.
+	</Card>
+	<Card title="Compatibilité DarkRP" icon="recycle" href="/compat/darkrp">
+		`DarkRP.createJob`, `AddExtraTeam`, hooks GMod : vos fichiers de config chargent tels quels.
+	</Card>
+	<Card title="Importer vos modèles GMod" icon="cube" href="/compat/import-gmod">
+		Un outil qui télécharge, extrait et convertit les modèles du Workshop GMod.
+	</Card>
+</CardGroup>
+
+## Deux façons de créer des addons
+
+- **Lua (compatible GMod)** : des dossiers de scripts déposés sur votre serveur, rechargeables à chaud — idéal pour migrer l'existant et scripter vite. C'est la moitié « venir de Garry's Mod » du SDK.
+- **C# (natif s&box)** : le [Dev Kit](/addons/csharp-demarrage) simule un serveur DarkRP Reborn dans l'éditeur ; vous codez contre le contrat d'API public (`Reborn`, `RebornEvents`, `IRebornPlayer`), et l'addon est intégré au jeu après revue. Les deux mondes voient les mêmes événements du jeu.
+
+## Comment ça marche
+
+Vos scripts Lua GMod tournent tels quels, syntaxe GLua comprise, avec l'API que vous connaissez déjà : `hook.Add`, `timer.Create`, `player.GetAll`, `ply:Nick()`, `DarkRP.createJob`…
+
+Vos addons sont de simples dossiers de fichiers `.lua` déposés sur votre serveur, **aucune compilation, aucune republication** :
+
+```text
+data/rebornstudio/cityliferp/addons/
+└── mon-addon/
+    ├── addon.json      (manifeste, optionnel)
+    └── main.lua        (point d'entrée)
+```
+
+```lua
+-- main.lua, un premier addon en 6 lignes
+hook.Add("PlayerInitialSpawn", "hello", function(ply)
+	timer.Simple(8, function()
+		if IsValid(ply) then ply:ChatPrint("Bienvenue sur mon serveur !") end
+	end)
+end)
+```
+
+Rechargez à chaud avec `addon_reload` dans la console serveur. Un addon en erreur est isolé et loggé, **il ne fait jamais tomber le serveur**.
+
+## L'esprit du projet
+
+- **Vos addons, votre serveur.** Le SDK n'impose aucune règle de gameplay : créez les métiers et systèmes que VOUS voulez.
+- **Sécurité d'abord.** Chaque addon tourne dans un bac à sable isolé (pas d'accès disque hors de son dossier, budget CPU par appel, API curée).
+- **Compatibilité mesurée, pas promise.** Chaque API est validée sur de vrais addons publics, [la matrice complète est publique](/compat/darkrp).

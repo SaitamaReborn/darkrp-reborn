@@ -1,0 +1,50 @@
+---
+title: "Configure your server"
+description: "Identity, staff, economy: plain JSON files, or the in-game admin panel."
+---
+
+All configuration lives in `data/rebornstudio/cityliferp/` as **readable JSON**. The in-game admin panel (`F6` for staff) writes to the same files, edit wherever you prefer.
+
+## Server identity, `server_config.json`
+
+```json
+{
+	"ServerName": "My RP Server",
+	"MotdTitle": "Welcome!",
+	"MotdBody": "Serious roleplay. No RDM, no metagaming.",
+	"DiscordUrl": "https://discord.gg/xxxx",
+	"LogoUrl": ""
+}
+```
+
+## Staff, `admins.json`
+
+```json
+{
+	"admins": ["76561198000000001"],
+	"moderators": ["76561198000000002"]
+}
+```
+
+Listed SteamID64s get their rank on connect. In-game commands (`/admin add`, `/mod add`) edit this file for you.
+
+## Economy & gameplay
+
+Salaries, starting money, loop tuning: the **Economy** and **Gameplay** tabs of the in-game admin panel (persisted to `panel_economy.json` / `panel_settings.json`).
+
+## Addons, `addons/config.json`
+
+```json
+{ "enabled": true }
+```
+
+Set to `false` to disable the whole Lua addon system (diagnostics).
+
+## Useful console commands
+
+| Command | Effect |
+|---|---|
+| `addon_list` | Lists addons + state (Loaded / Failed + error message) |
+| `addon_reload [name]` | Reloads one addon (or all) from disk |
+| `lua_run <code>` | Runs Lua directly (REPL console, host only) |
+| `lua_reset` | Resets the Lua console state |

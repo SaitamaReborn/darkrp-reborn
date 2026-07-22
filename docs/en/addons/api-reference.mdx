@@ -1,0 +1,164 @@
+---
+title: "API reference"
+description: "Everything your addon can call, hooks, player, world, persistence."
+---
+
+The API follows **Garry's Mod** conventions: if you know GLua, you're home. VS Code autocompletion stubs live in the SDK (`sdk/api-stubs/reborn-api.lua`).
+
+## Globals
+
+| Function | Description |
+|---|---|
+| `Color(r, g, b, a?)` / `Vector(x, y, z)` / `Angle(p, y, r)` | Plain tables |
+| `CurTime()` / `RealTime()` | Game clock / wall clock (seconds) |
+| `IsValid(v)` | `true` if the object still exists (disconnected player = `false`) |
+| `print(...)` / `PrintTable(t)` / `MsgC(...)` | Server log output, prefixed `[Lua:your-addon]` |
+| `include("file.lua")` | Runs another file from the same addon |
+| `AddCSLuaFile(...)` | Accepted no-op (no client Lua in v1) |
+| `FindMetaTable("Player"\|"Entity")` | The metatable, extend it with your own methods |
+| `SERVER` / `CLIENT` | `true` / `false` (v1: everything is server-side) |
+| `os.time()` / `os.date()` | Unix time / readable date |
+
+## hook
+
+```lua
+hook.Add(event, id, fn)    hook.Remove(event, id)    hook.Run(event, ...)
+```
+
+The **first non-nil return** stops the chain and becomes the result (GMod convention).
+
+| Event | Args | When |
+|---|---|---|
+| `PlayerInitialSpawn` | `ply` | Player joins |
+| `PlayerDisconnected` | `ply` | Player leaves (still resolvable) |
+| `PlayerSpawn` | `ply` | Respawn after death |
+| `PlayerDeath` | `victim, attacker?, weapon` | Death confirmed server-side |
+| `PlayerSay` | `ply, text` | Public chat (observe-only in v1) |
+| `OnPlayerChangedTeam` | `ply, before, after` | Job change confirmed |
+| `Think` |, | Every server tick (50 Hz), keep it light! |
+| `AddonsLoaded` |, | All addons finished loading |
+
+## Player
+
+```lua
+player.GetAll()   player.GetCount()   player.GetBySteamID64("7656...")   player.GetByName("prefix")
+```
+
+| Method | Effect |
+|---|---|
+| `ply:Nick()` / `ply:Name()` | RP name |
+| `ply:SteamID64()` (string) / `ply:SteamID()` | Identity |
+| `ply:IsValid()` / `ply:Alive()` | Existence / alive |
+| `ply:IsAdmin()` / `ply:IsSuperAdmin()` / `ply:IsModerator()` | Staff rank |
+| `ply:GetPos()` / `ply:SetPos({x=,y=,z=})` | World position |
+| `ply:Health()` / `ply:SetHealth(n)` / `ply:Kill()` | Health |
+| `ply:Team()` / `ply:GetJob()` / `ply:ChangeTeam("Police Officer")` | Job (respects max/vote/whitelist) |
+| `ply:Jail(seconds)` | Send to jail |
+| `ply:getMoney()` / `ply:getBankMoney()` / `ply:canAfford(n)` | Balances |
+| `ply:addMoney(n, reason?)` / `ply:takeMoney(n, reason?)` | Host-authoritative money (auto toast) |
+| `ply:giveItem(id, n?)` / `ply:takeItem(id, n?)` / `ply:hasItem(id)` | Inventory |
+| `ply:Notify(type, title, msg)` | Toast, `info · success · warn · danger` |
+| `ply:ChatPrint(msg)` | Private chat line |
+| `ply:getDarkRPVar("money"\|"job"\|"rpname")` | DarkRP compat |
+
+## chat
+
+```lua
+chat.AddCommand("mycmd", function(ply, args, rawText) ... end, "help", "user")
+chat.RemoveCommand("mycmd")
+chat.Broadcast("Server-wide announcement")
+```
+
+4th parameter = required level: `user` (default), `moderator`, `admin`, `superadmin`, `developer`. **Native** gamemode commands always win (no shadowing).
+
+## timer
+
+```lua
+timer.Simple(delay, fn)                 -- once
+timer.Create(id, delay, reps, fn)       -- repeated (0 = forever)
+timer.Remove(id)   timer.Exists(id)
+```
+
+## World
+
+```lua
+local ent = ents.SpawnProp("models/citizen_props/crate01.vmdl", {x=0, y=0, z=64}, 45)
+ent:GetPos()  ent:SetPos(v)  ent:Remove()  ent:IsValid()  ent:GetModel()
+
+npc.CreateShop({
+	name = "Momo's",
+	pos = {x = 100, y = 200, z = 0},
+	yaw = 90,
+	archetype = "Shop",
+	priceMultiplier = 1.0,
+	items = {
+		{ id = "burger", price = 25, stock = -1, label = "House burger" },
+		{ id = "soda",   price = 10 },
+	},
+})
+```
+
+<Note>
+**GMod** model paths (`models/....mdl`) translate automatically if imported with
+[the gmod-import tool](/en/compat/import-gmod).
+</Note>
+
+## Content: jobs & items
+
+Automatically replicated to every player (F4 menu, inventory):
+
+```lua
+jobs.Register({
+	name = "Taxi Driver",
+	description = "Drive citizens around.",
+	salary = 75,
+	max = 4,             -- 0 = unlimited
+	color = "#f5b83d",
+	category = "Citizens",
+	vote = false,
+})
+
+items.Register({
+	id = "espresso",
+	name = "Espresso",
+	type = "Food",
+	value = 8,
+	hunger = 5,
+	maxStack = 5,
+})
+```
+
+## data, persistence
+
+Per-addon JSON storage (`addons/<folder>/storage/`), survives reboots:
+
+```lua
+data.Set("scores", { alice = 12, bob = 3 })
+local scores = data.Get("scores", {})     -- 2nd arg = default
+data.Delete("scores")
+```
+
+GMod-style `file.Read/Write/Exists/Delete` map onto the same storage.
+
+## locale, translations
+
+Every visible string must exist in French AND English:
+
+```lua
+locale.Register("myaddon.hello", "Bonjour %s !", "Hello %s!")
+ply:ChatPrint(string.format(locale.T("myaddon.hello"), ply:Nick()))
+```
+
+## util
+
+`util.Log(msg)` · `util.CurTime()` · `util.RealTime()` · `util.UnixTime()` · `util.DateString()` · `util.JsonEncode(v, pretty?)` · `util.JsonDecode(s)`
+
+## GMod string / table / math extensions
+
+`string.Explode/Split/Trim/StartsWith/EndsWith/Left/Right/Replace/Comma/NiceTime` ·
+`table.HasValue/Count/Random/Copy/Merge/Add/IsEmpty/GetKeys/RemoveByValue` ·
+`math.Clamp/Round/Rand`
+
+## DarkRP.*
+
+`DarkRP.createJob`, `AddExtraTeam`, `DarkRP.createFood`, `DarkRP.defineChatCommand`, `DarkRP.notify/notifyAll`, `DarkRP.formatMoney`…, see the [compatibility matrix](/en/compat/darkrp) for the exact scope.

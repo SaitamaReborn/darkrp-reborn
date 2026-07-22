@@ -1,0 +1,57 @@
+---
+title: "Host your server"
+description: "A running DarkRP Reborn dedicated server, managed or self-hosted."
+---
+
+## Option A, Managed host (recommended)
+
+[Physgun](https://physgun.com) (or any host offering **s&box** dedicated servers) works out of the box:
+
+<Steps>
+	<Step title="Create an s&box server">
+		In your host's panel, pick the **s&box** dedicated server.
+	</Step>
+	<Step title="Point it at DarkRP Reborn">
+		In the startup configuration, set the gamemode:
+		```text
+		+game rebornstudio.cityliferp
+		```
+		The package ident is `rebornstudio.cityliferp` (historical technical name, the game is DarkRP Reborn).
+	</Step>
+	<Step title="Start it">
+		The server downloads the gamemode and map automatically on first boot and shows up in the in-game server list.
+	</Step>
+</Steps>
+
+<Tip>First boot downloads several GB (game + content). Subsequent boots are fast.</Tip>
+
+## Option B, Self-hosted
+
+On Windows or Linux with [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD):
+
+```bash
+steamcmd +login anonymous +app_update 1892930 validate +quit
+./sbox-server +game rebornstudio.cityliferp
+```
+
+Open the server's UDP port in your firewall.
+
+## Paths that matter
+
+Accessible over SFTP on managed hosts:
+
+| Path | Purpose |
+|---|---|
+| `data/rebornstudio/cityliferp/` | **All your server's data** (config, player saves, addons) |
+| `data/rebornstudio/cityliferp/addons/` | Your Lua addons ([guide](/en/addons/demarrage)) |
+| `data/rebornstudio/cityliferp/server_config.json` | Server name, MOTD, Discord |
+| `data/rebornstudio/cityliferp/admins.json` | Your staff (SteamID64) |
+| `logs/` | Server logs (essential for addon debugging) |
+
+<Warning>
+Never edit the gamemode files themselves: everything is customized through `data/` files and addons. That's what makes updates painless.
+</Warning>
+
+## Becoming admin on your own server
+
+The **first player to join** a server with no staff automatically receives SuperAdmin (owner failsafe). After that: `/admin add <steamid64>` in game, or edit `admins.json` and restart.

@@ -1,0 +1,78 @@
+---
+title: "Migrate a whole GMod server"
+description: "Your DarkRP, SCP-RP or MilitaryRP server moves from Garry's Mod to s&box in minutes. One command, everything follows."
+---
+
+Years of work, dozens of addons, an economy, players who know your server by heart. All of it deserves better than a 2004 engine. **reborn-migrate** carries your entire server to s&box, in one command, in minutes.
+
+```bash
+python3 tools/reborn-migrate/reborn_migrate.py "C:/servers/garrysmod"
+```
+
+The tool speaks English, français and русский. It inventories, converts, resolves, and hands you a verdict report: you know exactly where you stand before you even start your server.
+
+## What happens during those few minutes
+
+<Steps>
+	<Step title="Full inventory">
+		Addons (folders and `.gma` archives), custom gamemodes, loose scripts, Workshop
+		collections, database, configuration, startup map. Nothing is missed and nothing
+		leaves your disk.
+	</Step>
+	<Step title="Smart conversion">
+		Every addon becomes a DarkRP Reborn addon. Scripted entities and weapons follow.
+		Addons that share functions with each other are detected and grouped
+		automatically so they keep working together, just like on GMod.
+	</Step>
+	<Step title="Your server stays YOURS">
+		Custom HUD, homemade F4 menu, scoreboard, levels, gangs: if your server has its
+		own version, that version stays active. Duplicated stock systems are switched
+		off, and your server loads faster.
+	</Step>
+	<Step title="Report + deployment">
+		A per-addon verdict report, a ready-to-run deploy script, then `addon_reload`
+		on the server. Your players get THEIR server back.
+	</Step>
+</Steps>
+
+## What migrates
+
+| Your GMod server | On s&box | |
+|---|---|---|
+| Lua addons (folders and `.gma`) | DarkRP Reborn addons | ✅ automatic |
+| Jobs, economy, commands, hooks | Work as-is | ✅ automatic |
+| Scripted entities (SENT) and weapons (SWEP) | Playable | ✅ automatic |
+| Custom HUD and 2D interfaces | Render natively | ✅ automatic |
+| `sv.db` database (money, doors, jobs) | Imported | ✅ automatic |
+| Full `darkrpmodification` | Replicated content | ✅ automatic |
+| Models, textures, materials | Converted in the same command, skeletons and animations included | ✅ automatic |
+| Interdependent addons | Grouped and ordered automatically | ✅ automatic |
+| Very custom 3D effects | Listed precisely in the report | 🎨 guided |
+
+## Tested on a real server, not a demo
+
+We ran a complete server through the tool: **71 public addons plus an entire gamemode** (450+ Lua files). Outcome: 72 converted units, the overwhelming majority loads and runs immediately, groupings happen on their own, and the report pinpoints the little that deserves a touch-up. Zero conversion errors.
+
+<Card title="See the full compatibility matrix" icon="table" href="/en/compat/darkrp" horizontal>
+	API by API, measured on real public addons.
+</Card>
+
+## After the migration
+
+<Steps>
+	<Step title="Run the deployment">
+		`deploy.sh` is generated pre-filled: it ships addons, configuration and data to
+		your server.
+	</Step>
+	<Step title="Reload">
+		Server console: `addon_reload` then `addon_list`. Every addon must be `Loaded`.
+	</Step>
+	<Step title="Import content">
+		`import_content.sh` fetches and converts your Workshop models
+		([details](/en/compat/import-gmod)).
+	</Step>
+	<Step title="Polish">
+		Every addon that deserves a touch-up has its own `PORTING.md` with the exact
+		lines. You always know what to do next.
+	</Step>
+</Steps>

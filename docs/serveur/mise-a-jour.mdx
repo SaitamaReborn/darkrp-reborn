@@ -1,0 +1,36 @@
+---
+title: "Mettre à jour"
+description: "Comprendre republication, cache et redémarrage, le piège classique expliqué."
+---
+
+## Comment les mises à jour arrivent
+
+DarkRP Reborn est distribué comme **package s&box** (`rebornstudio.cityliferp`). Quand une nouvelle version est publiée, votre serveur la récupère **au redémarrage**.
+
+<Steps>
+	<Step title="Une mise à jour du gamemode sort">
+		Rien ne change tant que le serveur tourne.
+	</Step>
+	<Step title="Redémarrez le serveur (panel hébergeur)">
+		Au boot, le serveur compare son cache avec la version publiée.
+	</Step>
+	<Step title="Le nouveau package se télécharge">
+		Vos données (`data/`) et vos addons ne sont jamais touchés.
+	</Step>
+</Steps>
+
+## ⚠ Le piège du cache
+
+Un simple restart **ne suffit pas toujours** : le cache de packages compare des sommes de contrôle et peut conclure « rien de neuf » à tort. Symptôme : le changelog annonce un correctif, votre serveur joue encore l'ancienne version.
+
+**Solution** : dans le panel de l'hébergeur, utilisez l'action « vider le cache » / « réinstaller le contenu du jeu » puis redémarrez. Chez Physgun : bouton de purge du cache dans l'onglet serveur.
+
+<Warning>
+Purge de cache = re-téléchargement complet au boot suivant (plusieurs minutes d'indisponibilité). Prévenez vos joueurs.
+</Warning>
+
+## Vos addons à travers les mises à jour
+
+- `data/` (config, sauvegardes, addons) **survit** à toutes les mises à jour et purges de cache.
+- Après une grosse mise à jour, vérifiez `addon_list` : un addon qui utilisait un comportement non documenté peut passer en `Failed`, le message d'erreur pointe le fichier et la ligne.
+- L'API des addons est versionnée (`apiVersion` du manifeste) : les changements cassants seront annoncés et documentés ici.

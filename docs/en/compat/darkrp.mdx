@@ -1,0 +1,41 @@
+---
+title: "DarkRP (GMod) compatibility"
+description: "GMod compatibility, API by API, measured on real public addons. (More: not promised."
+---
+
+We ran **real public files** through the engine to build this matrix:
+
+- ✅ All **10 official** `darkrp_customthings` files from [FPtje/darkrpmodification](https://github.com/FPtje/darkrpmodification) (jobs, food, shipments, categories, entities, agendas, groupchats, ammo, demotegroups, doorgroups) **load unmodified**.
+- ✅ The public [DarkRP-Mining](https://github.com/MrDoctorSirLordSleepy/DarkRP-Mining) addon loads as-is, config, commands and entity files pass (entities stay inert, see below).
+
+## GLua syntax
+
+**100% supported**, the embedded lexer/parser is patched like GMod's:
+`&&` `||` `!` `!=`, `//` and `/* */` comments, the `continue` keyword (validated in `while`, `for`, `for-in`, `repeat`), faithful Lua patterns (`string.find/gsub/match/gmatch`) and full `string.format`.
+
+## Per-library matrix
+
+| GMod API | Status | Detail |
+|---|---|---|
+| `DarkRP.createJob` / `AddExtraTeam` | ✅ Functional | color, description, salary, max, category, vote honored. `model`, `weapons` (Source classes), `ammo`, `hasLicense`, `candemote`: ignored with a log line. Returns a team index. |
+| `DarkRP.createFood` | ✅ Functional | Becomes a consumable item (hunger). |
+| `DarkRP.defineChatCommand` | ✅ Functional | Wired into the game chat. |
+| `DarkRP.notify / notifyAll / formatMoney` | ✅ Functional | Native toasts. |
+| `ply:getDarkRPVar("money"/"job"/"rpname")`, `addMoney`, `changeTeam` | ✅ Functional | Host-authoritative money. |
+| `hook.*`, `timer.*`, `player.*`, `concommand.Add` | ✅ Functional | GMod conventions. `concommand` → chat command of the same name. |
+| GMod `string./table./math.` extensions | ✅ Functional | Explode, HasValue, Clamp, Comma… |
+| `file.*` | 🟡 Adapted | Reads/writes the addon's isolated storage (no free disk access). |
+| `DarkRP.createShipment` | 🟡 Tolerated no-op | GMod weapon crates have no direct equivalent (native arms dealer in game). Logged. |
+| `DarkRP.createEntity` / SENT / SWEP | ✅ Works | Playable scripted entities and weapons (money printer and custom weapons validated in-game). |
+| `resource.*`, `util.AddNetworkString`, `RunConsoleCommand`, `CreateConVar` | 🟡 Tolerated no-ops | So GMod autorun files pass without crashing. |
+| `sql.*` | ✅ Works | Per-addon isolated SQL database: queries, tables, transactions. |
+| `net.*`, vgui/derma, client HUD | ✅ Works | Client-server networking, vgui windows, `draw`/`surface` HUD rendered natively. |
+| `render.*`, `cam.Start3D2D` | 🎨 Guided | Custom 3D effects: the migration report lists every usage, file and line. |
+| Source models (`models/*.mdl`) | 🟡 Via importer | [gmod-import tool](/en/compat/import-gmod) + mapping manifest. |
+
+## Porting an addon: the method
+
+1. **Locate the server files**, `lua/autorun/*.lua` and `lua/autorun/server/*.lua` hold the logic. `lua/entities/` will load but stay inert; skip `cl_*.lua`.
+2. **Create the addon folder**, `addons/my-port/main.lua` that `include()`s each copied server file.
+3. **Load and read the logs**, `addon_reload my-port`: every unsupported call logs `[compat] …`, so you know exactly what's missing.
+4. **Handle the models**, each referenced `models/*.mdl` → [gmod-import](/en/compat/import-gmod), or swap for an s&box model.

@@ -1,0 +1,79 @@
+---
+title: "Migrer tout un serveur GMod"
+description: "Votre serveur DarkRP, SCP-RP ou MilitaryRP passe de Garry's Mod à s&box en quelques minutes. Une commande, tout suit."
+---
+
+Des années de travail, des dizaines d'addons, une économie, des joueurs qui connaissent votre serveur par cœur. Tout ça mérite mieux qu'un moteur de 2004. **reborn-migrate** transporte l'intégralité de votre serveur vers s&box, en une commande, en quelques minutes.
+
+```bash
+python3 tools/reborn-migrate/reborn_migrate.py "C:/serveurs/garrysmod"
+```
+
+L'outil parle français, English et русский. Il inventorie, convertit, résout, et vous remet un rapport à verdicts : vous savez exactement où vous en êtes avant même d'ouvrir votre serveur.
+
+## Ce qui se passe pendant ces quelques minutes
+
+<Steps>
+	<Step title="Inventaire complet">
+		Addons (dossiers et archives `.gma`), gamemodes custom, scripts à la racine,
+		collections Workshop, base de données, configuration, carte de démarrage.
+		Rien n'est oublié, rien ne part en ligne : tout reste sur votre disque.
+	</Step>
+	<Step title="Conversion intelligente">
+		Chaque addon devient un addon DarkRP Reborn. Entités et armes scriptées suivent.
+		Les addons qui partagent des fonctions entre eux sont détectés et regroupés
+		automatiquement pour continuer à fonctionner ensemble, comme sur GMod.
+	</Step>
+	<Step title="Votre serveur reste LE vôtre">
+		HUD custom, menu F4 maison, scoreboard, niveaux, gangs : si votre serveur a sa
+		version, c'est ELLE qui reste active. Les systèmes de base en doublon sont
+		coupés, et votre serveur charge plus vite.
+	</Step>
+	<Step title="Rapport + déploiement">
+		Un rapport à verdicts page par page, un script de déploiement prêt à lancer,
+		et `addon_reload` sur le serveur. Vos joueurs retrouvent leur serveur.
+	</Step>
+</Steps>
+
+## Ce qui migre
+
+| Votre serveur GMod | Sur s&box | |
+|---|---|---|
+| Addons Lua (dossiers et `.gma`) | Addons DarkRP Reborn | ✅ automatique |
+| Jobs, économie, commandes, hooks | Fonctionnels tels quels | ✅ automatique |
+| Entités (SENT) et armes (SWEP) | Jouables | ✅ automatique |
+| HUD et interfaces 2D custom | S'affichent nativement | ✅ automatique |
+| Base `sv.db` (argent, portes, jobs) | Importée | ✅ automatique |
+| `darkrpmodification` complet | Contenu répliqué | ✅ automatique |
+| Modèles, textures, matériaux | Convertis dans la même commande, squelettes et animations compris | ✅ automatique |
+| Addons interdépendants | Regroupés et ordonnés automatiquement | ✅ automatique |
+| Cartes | Assets, spawns et portes extraits pour Hammer | ✅ [outillé](/compat/import-carte) |
+| Effets 3D très custom | Listés précisément dans le rapport | 🎨 guidé |
+
+## Testé sur un vrai serveur, pas sur une démo
+
+Nous avons passé un serveur complet dans l'outil : **71 addons publics plus un gamemode entier** (450+ fichiers Lua). Résultat : 72 unités converties, l'écrasante majorité charge et tourne immédiatement, les regroupements se font seuls, et le rapport pointe précisément le peu qui mérite une retouche. Zéro erreur de conversion.
+
+<Card title="Voir la matrice de compatibilité complète" icon="table" href="/compat/darkrp" horizontal>
+	API par API, mesurée sur de vrais addons publics.
+</Card>
+
+## Après la migration
+
+<Steps>
+	<Step title="Lancez le déploiement">
+		`deploy.sh` est généré pré-rempli : il envoie addons, configuration et données
+		sur votre serveur.
+	</Step>
+	<Step title="Rechargez">
+		Console serveur : `addon_reload` puis `addon_list`. Chaque addon doit être `Loaded`.
+	</Step>
+	<Step title="Importez le contenu">
+		`import_content.sh` récupère et convertit vos modèles Workshop
+		([détails](/compat/import-gmod)).
+	</Step>
+	<Step title="Peaufinez">
+		Chaque addon qui mérite une retouche a son `PORTING.md` avec les lignes exactes.
+		Vous savez toujours quoi faire ensuite.
+	</Step>
+</Steps>

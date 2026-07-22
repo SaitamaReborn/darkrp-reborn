@@ -1,0 +1,82 @@
+---
+title: "Votre premier addon"
+description: "De zéro à un addon qui tourne, en cinq minutes chrono."
+---
+
+## Anatomie d'un addon
+
+```text
+data/rebornstudio/cityliferp/addons/
+└── bienvenue/
+    ├── addon.json     ← manifeste (optionnel mais recommandé)
+    └── main.lua       ← point d'entrée, exécuté au chargement
+```
+
+`addon.json` :
+
+```json
+{
+	"name": "Bienvenue",
+	"author": "Vous",
+	"version": "1.0",
+	"description": "Message d'accueil + /discord",
+	"entry": "main.lua",
+	"apiVersion": 1,
+	"enabled": true
+}
+```
+
+Sans manifeste, un dossier contenant `main.lua` est chargé avec des valeurs par défaut.
+
+## Le hello-world
+
+`main.lua` :
+
+```lua
+local DISCORD = "discord.gg/VOTRE-INVITE"
+
+hook.Add("PlayerInitialSpawn", "bienvenue_hello", function(ply)
+	timer.Simple(8, function()
+		if IsValid(ply) then
+			ply:Notify("info", "Bienvenue", "Bienvenue sur DarkRP Reborn ! Tapez /discord.")
+		end
+	end)
+end)
+
+chat.AddCommand("discord", function(ply)
+	ply:ChatPrint("Discord : " .. DISCORD)
+end, "Afficher le lien Discord")
+
+util.Log("Addon Bienvenue chargé.")
+```
+
+<Steps>
+	<Step title="Déposez le dossier">
+		Par SFTP (hébergeur) ou copie locale, dans `data/rebornstudio/cityliferp/addons/bienvenue/`.
+	</Step>
+	<Step title="Chargez">
+		Console serveur : `addon_reload` (ou redémarrez). Vérifiez avec `addon_list`.
+	</Step>
+	<Step title="Testez en jeu">
+		Reconnectez-vous : la notification arrive 8 s après le spawn. `/discord` répond dans le chat.
+	</Step>
+</Steps>
+
+## Ce qu'il faut savoir
+
+- **Vos fichiers s'exécutent sur le serveur** (host). Les joueurs voient les effets (notifications, chat, argent, métiers, PNJ) via la réplication du jeu, vous n'avez rien à networker.
+- **La syntaxe GLua marche** : `&&`, `||`, `!`, `!=`, `//` et `/* */`, `continue`, écrivez comme sur Garry's Mod.
+- **`include("fichier.lua")`** charge un autre fichier du MÊME addon (organisez votre code).
+- **Itérer = éditer + `addon_reload <nom>`**. Le rechargement démonte proprement tout ce que l'addon avait créé (commandes, timers, hooks, PNJ, props).
+- Un addon en erreur est mis de côté (`Failed`) avec le message `fichier:ligne`, le serveur continue.
+
+## Où aller ensuite
+
+<CardGroup cols={2}>
+	<Card title="Référence de l'API" icon="book" href="/addons/api-reference">
+		Tous les hooks, méthodes joueur, timers, PNJ, persistance…
+	</Card>
+	<Card title="Tutoriel complet : la Loterie" icon="graduation-cap" href="/addons/tutoriel-loterie">
+		Un vrai addon de gameplay, expliqué ligne par ligne.
+	</Card>
+</CardGroup>

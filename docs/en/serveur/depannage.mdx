@@ -1,0 +1,46 @@
+---
+title: "Troubleshooting"
+description: "The classic failures and how to diagnose them, most frequent first."
+---
+
+## Reflex #1: the logs
+
+Everything addon-related is prefixed in the server log:
+
+```text
+[Lua] 2 addon(s) loaded, 1 failed, 0 disabled.
+[Lua:lottery] LOAD ERROR: [string "City Lottery/main.lua"]:12: '=' expected
+```
+
+The `file:line` format points at the exact error. `addon_list` in console shows each addon's state without digging through logs.
+
+## Frequent issues
+
+<AccordionGroup>
+	<Accordion title="My addon doesn't show in addon_list">
+		Check the exact location: `data/rebornstudio/cityliferp/addons/<folder>/main.lua`.
+		A malformed `addon.json` (trailing comma…) marks the addon `Failed` with details.
+	</Accordion>
+	<Accordion title="Addon Failed after an edit">
+		`addon_list` shows the error (file:line). Fix, then `addon_reload <name>`, no server restart needed.
+	</Accordion>
+	<Accordion title="/mycommand says “unknown”">
+		1. Is the declaring addon `Loaded`?
+		2. NATIVE gamemode commands take priority: if the name already exists (e.g. `/help`), your command cannot shadow it, pick another name.
+	</Accordion>
+	<Accordion title="“CPU budget exceeded” in logs">
+		One of your hooks/timers runs too long (infinite loop, massive work). The server protected itself by killing the call. Split the work with timers or optimize.
+	</Accordion>
+	<Accordion title="Server runs an old gamemode version">
+		That's the cache trap, see [Updating](/en/serveur/mise-a-jour).
+	</Accordion>
+	<Accordion title="Players don't see an addon-added job">
+		Addon jobs replicate on connect. A player already online BEFORE the addon loaded must reconnect.
+	</Accordion>
+</AccordionGroup>
+
+## Isolating a faulty addon
+
+1. `addons/config.json` → `"enabled": false` + restart: is the server healthy without addons?
+2. Re-enable, then set `"enabled": false` in each suspect's `addon.json`, one at a time.
+3. `addon_reload` between attempts.

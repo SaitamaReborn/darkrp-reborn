@@ -1,0 +1,62 @@
+---
+title: "Importer une carte GMod"
+description: "Extraire tout ce qui est extractible d'une carte Source .bsp, sans promesse magique."
+---
+
+Une carte Source (`.bsp`, GMod/Workshop) **ne se convertit pas parfaitement en un clic** vers s&box : géométrie BSP, lightmaps, shaders d'eau propriétaires demandent une passe humaine. Aucun outil au monde ne fait le contraire. `tools/map-import` automatise **tout ce qui l'est vraiment** et vous dit précisément ce qui reste.
+
+## Ce qui est extrait automatiquement (aucun outil externe)
+
+```bash
+python tools/map-import/map_import.py extract "chemin/rp_ville.bsp" --out ./map_out
+```
+
+Le parseur BSP intégré sort :
+
+<CardGroup cols={2}>
+	<Card title="Assets embarqués" icon="box">
+		Les modèles et textures **custom empaquetés dans la map** (pakfile), souvent
+		l'essentiel du contenu unique d'une carte RP.
+	</Card>
+	<Card title="Entités" icon="location-dot">
+		Points de spawn, **portes achetables**, lumières, zones, avec leurs positions
+		monde exactes, dans `map_data.json`, réutilisables par le gamemode.
+	</Card>
+</CardGroup>
+
+## Ce qui demande un outil (semi-auto)
+
+| Étape | Outil | Résultat |
+|---|---|---|
+| Télécharger depuis le Workshop | SteamCMD | `map_import.py download <id>` |
+| Modèles → `.vmdl` | [gmod-import](/compat/import-gmod) | avec `models_referenced.txt` |
+| Géométrie → `.vmf` | [BSPSource](https://github.com/ata4/bspsrc) + Java | `map_import.py decompile` |
+| Montage final | **Hammer s&box** | ouvre le `.vmf`, recompile |
+| Textures HD | [mode HD](/serveur/mode-hd) | PBR 4K CC0 |
+
+## Le pipeline complet
+
+```bash
+# Tout d'un coup depuis un ID Workshop
+python map_import.py all 123456789 --out ./map_out
+```
+
+<Steps>
+	<Step title="Déballage automatique">
+		Assets embarqués, entités, spawns, portes, liste des modèles, tout dans `map_out/`.
+	</Step>
+	<Step title="Modèles">
+		Passez `models_referenced.txt` + `embedded/` dans gmod-import.
+	</Step>
+	<Step title="Géométrie">
+		BSPSource sort un `.vmf` ; ouvrez-le dans Hammer s&box (lecture Source 1), recompilez.
+	</Step>
+	<Step title="Gameplay">
+		`map_data.json` donne les positions des spawns et portes, placez-y les prefabs
+		DarkRP Reborn aux mêmes coordonnées.
+	</Step>
+</Steps>
+
+<Note>
+L'outil sort automatiquement les assets, les entités, les spawns et les portes. Le mappeur assemble ensuite dans Hammer avec toute la matière déjà prête, au lieu de repartir de zéro.
+</Note>

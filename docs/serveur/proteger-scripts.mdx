@@ -1,0 +1,57 @@
+---
+title: "Protéger ses scripts"
+description: "Comment DarkRP Reborn protège votre travail, et ce qu'aucun système ne peut garantir. Écrit franchement."
+---
+
+Vous avez passé des mois (et parfois beaucoup d'argent) sur vos addons, vos animations, votre RP. La question est légitime : **est-ce qu'un « petit malin » peut venir télécharger vos scripts et relancer votre serveur ailleurs ?**
+
+Voici la vérité, sans marketing.
+
+## Ce qui est protégé par construction
+
+<CardGroup cols={2}>
+	<Card title="Scripts serveur" icon="lock">
+		Vos fichiers `sv_*`, `init.lua`, `lua/autorun/server/*` et toute la logique
+		serveur (jobs, économie, hooks, base de données) **ne quittent JAMAIS votre
+		serveur**. Ils ne sont ni envoyés ni téléchargeables par les joueurs. Point.
+	</Card>
+	<Card title="Scripts client en mémoire" icon="memory">
+		Les fichiers client (`cl_*`, `sh_*`) sont poussés aux joueurs **en mémoire
+		vive uniquement**, jamais écrits sur leur disque. Il n'y a pas de dossier
+		`download/` qui traîne comme sur certains montages.
+	</Card>
+</CardGroup>
+
+Concrètement : quelqu'un qui rejoint votre serveur repart avec **votre map et vos modèles** (comme sur tout jeu, le client doit les afficher), mais **pas votre logique de jeu**. Un serveur Naruto RP à plusieurs millions d'investissement garde ses métiers, ses systèmes, sa progression, sa base de données, l'essentiel de la valeur.
+
+## Ce qu'AUCUN système ne peut garantir (et pourquoi)
+
+Les faits, précisément :
+
+- **Un client doit afficher ce qu'il reçoit.** Vos modèles 3D et votre map sont, par nature, sur la machine du joueur pendant qu'il joue, sinon il ne verrait rien. Un joueur déterminé peut donc en extraire une copie. C'est vrai sur **tous** les jeux, GMod comme s&box, et aucun « anti-vol » ne change cette réalité physique.
+- **Le Lua client en mémoire est plus dur à récupérer** qu'un fichier sur disque, mais un outil de capture mémoire avancé reste théoriquement possible. On rend ça pénible, pas magiquement impossible.
+- **Méfiez-vous des promesses « incrackable »** : quiconque vous jure une protection à 100 % vend du rêve.
+
+## La vraie protection : là où est la valeur
+
+La valeur d'un gros serveur n'est presque jamais dans le code lui-même, c'est dans :
+
+1. **La logique serveur** (protégée ici) : c'est le cerveau, il reste chez vous.
+2. **La base de données** (`data/`) : progression des joueurs, économie, historique. Elle ne se copie pas.
+3. **La communauté et le staff** : impossible à voler.
+4. **Les mises à jour continues** : un serveur vivant garde une longueur d'avance sur une copie figée.
+
+Un voleur peut au mieux repartir avec des modèles et une map, jamais avec votre serveur qui tourne.
+
+## Nos recommandations concrètes
+
+- Gardez toute la **logique sensible côté serveur** (`sv_*`, `init.lua`). Ne mettez côté client que l'affichage.
+- Ne marquez avec `AddCSLuaFile` **que** les fichiers réellement nécessaires à l'affichage (moins vous en envoyez, mieux c'est).
+- Pour vos **modèles achetés sous licence**, gardez la preuve d'achat : le recours en cas de vol est **juridique** (DMCA, licence), pas technique.
+- Sauvegardez votre `data/` : c'est votre vrai trésor.
+
+<Note>
+En résumé : votre **cerveau serveur est protégé**, vos **assets sont exposés comme sur
+tout jeu**, et la meilleure défense reste un serveur vivant que personne ne peut
+copier « en marche ». On ne vous vendra jamais l'illusion inverse.
+</Note>

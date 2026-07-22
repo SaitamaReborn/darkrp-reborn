@@ -1,0 +1,67 @@
+---
+title: "Ваш первый аддон"
+description: "От нуля до работающего аддона за пять минут."
+---
+
+## Структура аддона
+
+```text
+data/rebornstudio/cityliferp/addons/
+└── welcome/
+    ├── addon.json     ← манифест (необязательно)
+    └── main.lua       ← точка входа
+```
+
+`addon.json`:
+
+```json
+{
+	"name": "Welcome",
+	"author": "Вы",
+	"version": "1.0",
+	"entry": "main.lua",
+	"apiVersion": 1,
+	"enabled": true
+}
+```
+
+## Hello world
+
+```lua
+local DISCORD = "discord.gg/ВАША-ССЫЛКА"
+
+hook.Add("PlayerInitialSpawn", "welcome_hello", function(ply)
+	timer.Simple(8, function()
+		if IsValid(ply) then
+			ply:Notify("info", "Добро пожаловать", "Добро пожаловать на DarkRP Reborn! Напишите /discord.")
+		end
+	end)
+end)
+
+chat.AddCommand("discord", function(ply)
+	ply:ChatPrint("Discord: " .. DISCORD)
+end, "Показать ссылку Discord")
+
+util.Log("Аддон Welcome загружен.")
+```
+
+<Steps>
+	<Step title="Поместите папку">
+		Через SFTP в `data/rebornstudio/cityliferp/addons/welcome/`.
+	</Step>
+	<Step title="Загрузите">
+		Консоль сервера: `addon_reload`. Проверьте через `addon_list`.
+	</Step>
+	<Step title="Проверьте в игре">
+		Переподключитесь: уведомление придёт через 8 секунд. `/discord` ответит в чат.
+	</Step>
+</Steps>
+
+## Что нужно знать
+
+- **Ваши файлы работают на сервере.** Игроки видят результат (уведомления, чат, деньги, профессии) через репликацию, сеть писать не нужно.
+- **Синтаксис GLua работает**: `&&`, `||`, `!`, `!=`, `//`, `continue`, пишите как в Garry's Mod.
+- **`include("файл.lua")`** загружает другой файл того же аддона.
+- Итерация = правка + `addon_reload <имя>`.
+
+Полный справочник API, на французской или английской версии сайта (перевод остальных страниц в процессе).

@@ -1,0 +1,93 @@
+---
+title: "C# addons: getting started with the Dev Kit"
+description: "Build a native s&box C# addon against the game's public API, test it in the editor, without the gamemode's source code."
+---
+
+DarkRP Reborn offers **two ways** to build an addon:
+
+| | **Lua** addons | **C#** addons (this page) |
+|---|---|---|
+| Language | GLua (Garry's Mod compatible) | Native s&box C# |
+| For | GMod modders, quick scripts | Developers, full systems |
+| Testing | On a server (`data/addons/` folder) | **In the s&box editor** via the Dev Kit |
+| Shipping | SFTP drop, hot-reloadable | Integrated into the game after review (curated) |
+
+The C# model in one sentence: **we share the API contract, not the game**. The
+Dev Kit is a complete s&box project that simulates a DarkRP Reborn server; your
+addon codes against the exact API that ships inside the real game, then runs in
+production **without changing a line**.
+
+## 1. Install
+
+1. [s&box](https://sbox.game) via Steam (free).
+2. Clone this repository (or download the zip).
+3. Open `devkit/devkit.sbproj` in the s&box editor.
+
+## 2. Run the simulated server
+
+Press **Play**. The Dev Kit console appears: two simulated players (Alice and
+Bob) join, and the bundled `exemple-bienvenue` addon welcomes them.
+
+Drive the simulation from the s&box console:
+
+```text
+devkit_players              → list simulated players (job, money)
+devkit_join Charlie         → a player joins
+devkit_leave Bob            → a player leaves
+devkit_say "hello"          → public chat (fires PlayerChat)
+devkit_say "/coucou"        → addon chat command
+devkit_die Alice            → death + respawn
+devkit_job Alice Policier   → job change
+csaddon_list                → loaded addons + registered commands
+```
+
+## 3. Create your addon
+
+Copy `template/addon-csharp/` to `devkit/code/MyAddons/<your-ident>/`
+(**lowercase-and-hyphens** ident, permanent). A minimal addon:
+
+```csharp
+using Sandbox;
+using DarkRPReborn.Addons;
+
+public sealed class MyAddon : RebornAddon
+{
+	public override string Ident => "my-addon";
+	public override string Name => "My first addon";
+	public override string Author => "Your nickname";
+
+	public override void OnAddonLoaded()
+	{
+		RebornEvents.PlayerJoined += p => p.Chat( $"Hello {p.Name}!" );
+
+		Reborn.RegisterChatCommand( "hi", "Says hi", ( player, args ) =>
+		{
+			player.Notify( "Hi!", $"You are carrying {player.Money}$." );
+		}, Ident );
+	}
+}
+```
+
+That's it: **no registration**. The loader auto-discovers every `RebornAddon`
+subclass at boot (the "component services" model - one GameObject per addon,
+server side only). Save the file: the editor hotload picks up your changes.
+
+## 4. Iterate
+
+- Events (`RebornEvents.*`) and the API (`Reborn.*`, `IRebornPlayer`) are covered
+  in the [C# API reference](/en/addons/csharp-api).
+- Your addon is a regular s&box component: `OnUpdate`, `OnFixedUpdate`, spawning
+  GameObjects... the whole editor is yours.
+- `Reborn.SaveData` / `LoadData` persists one JSON blob per addon across restarts.
+
+## 5. Ship it
+
+When ready: [submit your addon](/en/addons/csharp-shipping). In short: send the
+`MyAddons/<your-ident>/` folder, the team reviews it, integrates it into the
+game, and it goes live with the next publish.
+
+<Note>
+The API contract (`devkit/code/Addons/`) is an exact copy of the files shipped
+inside the game. Never modify it: an addon that patches the contract will not be
+accepted.
+</Note>

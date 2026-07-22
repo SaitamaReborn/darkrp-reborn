@@ -1,0 +1,24 @@
+---
+title: "Updating"
+description: "Publishing, cache and restarts, the classic trap explained."
+---
+
+## How updates arrive
+
+DarkRP Reborn ships as an **s&box package** (`rebornstudio.cityliferp`). When a new version is published, your server picks it up **on restart**.
+
+## ⚠ The cache trap
+
+A plain restart is **not always enough**: the package cache compares checksums and can wrongly conclude "nothing new". Symptom: the changelog announces a fix, your server still runs the old build.
+
+**Fix**: use your host panel's "clear cache" / "reinstall game content" action, then restart. On Physgun: the cache purge button in the server tab.
+
+<Warning>
+Cache purge = full re-download on next boot (several minutes of downtime). Warn your players.
+</Warning>
+
+## Your addons across updates
+
+- `data/` (config, saves, addons) **survives** every update and cache purge.
+- After a major update, check `addon_list`: an addon relying on undocumented behavior may turn `Failed`, the error message points at the file and line.
+- The addon API is versioned (`apiVersion` in the manifest): breaking changes will be announced and documented here.

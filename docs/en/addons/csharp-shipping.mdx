@@ -1,0 +1,56 @@
+---
+title: "C# addons: submitting your addon"
+description: "The publishing pipeline: review, integration into the game, deployment. What gets accepted, what does not."
+---
+
+Unlike Lua addons (dropped on a server), C# addons are **integrated into the game
+itself** after review - the curated-marketplace model: your code runs natively,
+at the same level as the gamemode's own systems.
+
+## The pipeline
+
+1. **Develop** in the Dev Kit (`devkit/code/MyAddons/<your-ident>/`).
+2. **Send** the addon folder (zip) to the DarkRP Reborn team - Discord or the
+   contact the team gave you. Include: ident, a one-sentence description, and
+   what the addon visibly does in game.
+3. **Review**: code read (checklist below), test in the Dev Kit then on the dev
+   server.
+4. **Integration**: the addon lands as-is in the game's `code/Addons/<your-ident>/`
+   and ships with the next publish. Your `Author` shows in `csaddon_list`.
+5. **Updates**: resend the folder with `Version` bumped; same pipeline, faster.
+
+## Review checklist
+
+Accepted:
+
+- References **only** the public contract (`RebornAddon`, `Reborn`, `RebornEvents`,
+  `IRebornPlayer`) and the standard s&box API.
+- Server-authoritative logic: money via `GiveMoney`/`TakeMoney`, never a
+  client-invented value.
+- Lean `OnUpdate`/`OnFixedUpdate`: no per-frame allocations, no scene scans every
+  tick (cache things, use `Reborn.Every`).
+- Clean player-facing text (no slurs, no third-party brands), ideally localized
+  via `p.Language`.
+- One addon per folder, stable ident, `Version` filled in.
+
+Rejected outright:
+
+- Patched or modified copies of the contract files (`code/Addons/*.cs`).
+- Reflection into the game's internal types, file access outside
+  `Reborn.SaveData`/`LoadData`, HTTP requests.
+- Unbalanced economy (money printing, infinite reward loops) - balance is part of
+  the review.
+- Obfuscated or unreadable code: the review reads everything.
+
+## Who owns what
+
+Your addon stays **your code**: you sign it (`Author`), you decide its updates.
+By sending it you allow DarkRP Reborn to ship it inside the published game and to
+disable it if a production issue requires it. The API contract is versioned: if a
+breaking change ever happens, the team warns you with the migration.
+
+<Note>
+Want a quick, hot-reloadable server script without review instead? That is what
+[Lua addons](/en/addons/demarrage) are for - both worlds see the same game
+events.
+</Note>

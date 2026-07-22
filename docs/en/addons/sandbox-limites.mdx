@@ -1,0 +1,33 @@
+---
+title: "Sandbox & limits"
+description: "What an addon can do, cannot do, and why."
+---
+
+## The security model
+
+Each addon runs in an **isolated Lua state**: its globals, hooks and timers never interfere with another addon's. On unload/reload, EVERYTHING it created is torn down (commands, timers, hooks, NPCs, props).
+
+| Protection | Detail |
+|---|---|
+| **No free disk access** | `io` and `os` (files) don't exist. `data.*`/`file.*` only write inside `addons/<your-folder>/storage/`. `include()` cannot escape the addon folder. |
+| **Per-call CPU budget** | A hook/timer/command exceeding ~50 ms is killed with a "CPU budget exceeded" error. An infinite loop never freezes the server. |
+| **No native code** | No `require`, no external libraries, no .NET reflection. The exposed API is the only surface. |
+| **Contained failures** | An exception in your code marks YOUR addon `Failed`, the server and other addons carry on. |
+| **Host-authoritative money** | `addMoney`/`takeMoney` go through the same guards as the rest of the game. |
+
+## What doesn't exist (yet)
+
+| Missing in v1 | Alternative / status |
+|---|---|
+| **Client-side Lua** (vgui, derma, custom HUD, `net.*`) | Planned for phase 2. `net.*` is a tolerated no-op so GMod files don't crash. |
+| **Functional SWEPs / SENTs** | Files load (`SWEP`/`ENT` scaffolds) but don't create usable weapons/entities. |
+| **`sql.*`** | Logged no-op. Use `data.*` (JSON). |
+| **Blocking `PlayerSay`** | The hook observes chat but cannot censor it in v1. |
+
+## Good practices
+
+- **No heavy work in `Think`** (50 Hz), prefer `timer.Create` at 1-30 s.
+- **Save sparingly**: `data.Set` hits the disk; batch your writes.
+- **Check `IsValid(ply)`** in every deferred callback (the player may have left).
+- **Prefix your locale keys** (`myaddon.xxx`) and hook/timer ids to avoid collisions.
+- **French + English everywhere** via `locale.Register`.

@@ -1,0 +1,67 @@
+---
+title: "Mode HD & optimiser sa carte"
+description: "Remplacer les vieilles textures Source par du PBR 4K libre de droits, et rendre votre map moderne (lumières, flaques, reflets)."
+---
+
+Une carte GMod importée arrive souvent avec ses textures Source d'origine, correctes en 2010, datées aujourd'hui. Le « mode HD » les remplace par du **PBR haute définition libre de droits** et modernise l'éclairage.
+
+## 1. Textures HD automatiques
+
+L'outil `tools/hd-textures` recense les matériaux de votre carte et télécharge, pour chacun, un équivalent **PBR CC0** depuis [ambientCG](https://ambientcg.com) (banque gratuite, domaine public, utilisable même commercialement).
+
+```bash
+# Voir ce que votre carte utilise + les correspondances proposées
+python hd_textures.py list "chemin/vers/map_extraite"
+
+# Tout télécharger automatiquement (mur, sol, béton, bois…)
+python hd_textures.py auto "chemin/vers/map_extraite" --res 2K
+
+# Ou une famille précise
+python hd_textures.py fetch brick --res 4K
+```
+
+<Steps>
+	<Step title="Téléchargez les PBR">
+		L'outil produit des `.zip` (couleur + normal + rugosité) dans `hd_out/`.
+	</Step>
+	<Step title="Importez dans s&box">
+		Dézippez, glissez les PNG dans l'éditeur. Créez un `.vmat` : Color = `_Color`,
+		Normal = `_Normal`, Roughness = `_Roughness`.
+	</Step>
+	<Step title="Réassignez sur la carte">
+		Appliquez le nouveau matériau aux surfaces concernées (murs, sols…).
+	</Step>
+</Steps>
+
+<Warning>
+On n'utilise **que** des sources CC0 (ambientCG, Poly Haven). On évite volontairement
+les banques payantes type Megascans (rachetées par Epic) : leur licence interdit la
+redistribution hors de leur écosystème. CC0 = zéro risque juridique pour vous.
+</Warning>
+
+## 2. Éclairage moderne
+
+Le vieux lightmap Source rend plat. Passez aux lumières s&box :
+
+- Remplacez les lumières statiques par des **Light Components** (ombres douces, portée réglable).
+- Ajoutez une **Reflection Probe** par pièce importante : les surfaces PBR renvoient alors l'environnement (métal, vitres, sols mouillés brillent).
+- Un léger **post-processing** (bloom, tonemapping) suffit à donner un rendu « AAA », sans surcharger.
+
+## 3. Flaques & sols mouillés
+
+Le rendu PBR permet des zones humides crédibles :
+
+- Baissez la **rugosité** (Roughness sombre) sur les zones de flaque → réflexion nette.
+- Une **Reflection Probe** au-dessus fait apparaître le reflet du décor dans l'eau.
+- Pour de l'eau réelle, utilisez le **watertool** déjà présent dans le projet.
+
+## 4. Repères de performance
+
+- Visez **2K** pour les grandes surfaces, **4K** seulement pour ce que le joueur regarde de près.
+- Une Reflection Probe par pièce, pas dix, elles coûtent cher.
+- Compilez vos matériaux (l'éditeur le fait à l'import) : un PNG non compilé est lourd en VRAM.
+
+<Note>
+Objectif : que votre carte ait l'air **née sur s&box**, pas portée de 2010. Le combo
+PBR CC0 + lumières + une probe par pièce transforme l'ambiance sans travail de titan.
+</Note>

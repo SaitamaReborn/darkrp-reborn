@@ -1,0 +1,34 @@
+---
+title: "Migrar un servidor GMod entero"
+description: "Arrastra tu servidor de Garry's Mod, ejecuta un comando, obtén tu servidor en s&box."
+---
+
+¿Tienes un servidor DarkRP (o MilitaryRP, SCP-RP…) con decenas de addons? La herramienta `reborn-migrate` convierte **todo el servidor de una vez**.
+
+## Un solo comando
+
+```bash
+python tools/reborn-migrate/reborn_migrate.py "C:/ruta/a/garrysmod" --out ./migration
+```
+
+## Qué migra
+
+| Elemento GMod | Se convierte en | Estado |
+|---|---|---|
+| `addons/*` (Lua) | addons DarkRP Reborn | ✅ automático |
+| Entidades scriptadas (SENT) | entidades jugables | ✅ probado |
+| Armas scriptadas (SWEP) | armas jugables | ✅ probado |
+| `darkrpmodification` (trabajos, comida) | contenido replicado | ✅ probado |
+| `sv.db` (trabajos, dinero) | `sql_seeds.json` | ✅ exportado |
+| Modelos `models/*.mdl` | lista + gmod-import | 🟡 semi-auto |
+| Mapas `.bsp` | señalados | 🟡 aparte |
+| UI custom (`surface`/`render`) | reescribir en `vgui` | 🔴 manual |
+
+## La prueba
+
+Migramos un servidor DarkRP real, `darkrpmodification` (impresora de dinero SENT, AK47 SWEP custom, trabajos) más un addon de minería, y todo **cargó sin un solo error**. La impresora de dinero migrada aparece en el juego y funciona.
+
+## Probado en un servidor real
+
+Un servidor completo (71 addons públicos más un gamemode entero, 450+ archivos Lua) pasó por la herramienta: la gran mayoría de los addons carga y funciona de inmediato, y el informe señala con precisión lo poco que merece un retoque. Cero errores de conversión.
+

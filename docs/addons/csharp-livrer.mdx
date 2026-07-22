@@ -1,0 +1,59 @@
+---
+title: "Addons C# : soumettre son addon"
+description: "Le circuit de publication : revue, intégration au jeu, déploiement. Ce qui est accepté, ce qui ne l'est pas."
+---
+
+Contrairement aux addons Lua (déposés sur un serveur), les addons C# sont
+**intégrés au jeu lui-même** après revue — le modèle « marketplace curée » : votre
+code tourne nativement, au même niveau que les systèmes du gamemode.
+
+## Le circuit
+
+1. **Développez** dans le Dev Kit (`devkit/code/MyAddons/<votre-ident>/`).
+2. **Envoyez** le dossier de l'addon (zip) à l'équipe DarkRP Reborn — Discord ou
+   le contact indiqué par l'équipe. Joignez : ident, description en une phrase,
+   et ce que l'addon fait de visible en jeu.
+3. **Revue** : lecture du code (checklist ci-dessous), test dans le Dev Kit puis
+   sur le serveur de dev.
+4. **Intégration** : l'addon est posé tel quel dans `code/Addons/<votre-ident>/`
+   du jeu et part en production au publish suivant. Votre `Author` s'affiche dans
+   `csaddon_list`.
+5. **Mises à jour** : renvoyez le dossier avec `Version` incrémentée ; même
+   circuit, plus rapide.
+
+## Checklist de revue
+
+Accepté :
+
+- Ne référence **que** le contrat public (`RebornAddon`, `Reborn`, `RebornEvents`,
+  `IRebornPlayer`) et l'API s&box standard.
+- Logique serveur : argent via `GiveMoney`/`TakeMoney`, jamais de valeur inventée
+  côté client.
+- `OnUpdate`/`OnFixedUpdate` sobres : pas d'allocations par frame, pas de scan de
+  scène à chaque tick (mettez en cache, utilisez `Reborn.Every`).
+- Textes joueurs propres (pas d'insulte, pas de marque tierce), idéalement
+  localisés via `p.Language`.
+- Un seul addon par dossier, ident stable, `Version` renseignée.
+
+Refusé d'office :
+
+- Patch ou copie modifiée des fichiers du contrat (`code/Addons/*.cs`).
+- Réflexion sur les types internes du jeu, accès fichiers hors
+  `Reborn.SaveData`/`LoadData`, requêtes HTTP.
+- Économie déséquilibrée (impression d'argent, boucles de récompense infinies) —
+  l'équilibrage fait partie de la revue.
+- Code obfusqué ou illisible : la revue lit tout.
+
+## Qui possède quoi
+
+Votre addon reste **votre code** : vous le signez (`Author`), vous décidez de ses
+mises à jour. En l'envoyant, vous autorisez DarkRP Reborn à l'embarquer dans le
+jeu publié et à le désactiver si un problème de prod l'exige. Le contrat d'API
+est versionné : si un changement cassant arrive un jour, l'équipe vous prévient
+avec la migration.
+
+<Note>
+Vous voulez plutôt un script rapide, rechargeable à chaud sur un serveur, sans
+revue ? C'est le rôle des [addons Lua](/addons/demarrage) — les deux mondes
+voient les mêmes événements du jeu.
+</Note>

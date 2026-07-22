@@ -1,0 +1,66 @@
+---
+title: "Héberger son serveur"
+description: "Un serveur dédié DarkRP Reborn opérationnel, chez un hébergeur ou chez vous."
+---
+
+## Option A, Hébergeur infogéré (recommandé)
+
+[Physgun](https://physgun.com) (et tout hébergeur proposant des serveurs **s&box**) fonctionne clé en main :
+
+<Steps>
+	<Step title="Créez un serveur s&box">
+		Dans le panel de l'hébergeur, choisissez le jeu **s&box** (dedicated server).
+	</Step>
+	<Step title="Pointez le serveur sur DarkRP Reborn">
+		Dans la configuration de démarrage, renseignez le gamemode :
+		```text
+		+game rebornstudio.cityliferp
+		```
+		L'ident du package est `rebornstudio.cityliferp` (nom technique historique, le jeu s'appelle DarkRP Reborn).
+	</Step>
+	<Step title="Démarrez">
+		Le serveur télécharge le gamemode et la carte automatiquement au premier boot.
+		Il apparaît dans la liste des serveurs du jeu.
+	</Step>
+</Steps>
+
+<Tip>
+Le premier démarrage télécharge plusieurs Go (jeu + contenu). Les suivants sont rapides.
+</Tip>
+
+## Option B, Auto-hébergé
+
+Sur une machine Windows ou Linux avec [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD) :
+
+```bash
+# Installer le serveur dédié s&box (app 1892930)
+steamcmd +login anonymous +app_update 1892930 validate +quit
+
+# Lancer DarkRP Reborn
+./sbox-server +game rebornstudio.cityliferp
+```
+
+Ouvrez le port UDP du serveur (défaut s&box) dans votre pare-feu.
+
+## Arborescence utile
+
+Une fois le serveur démarré, les chemins qui comptent (accessibles en SFTP chez Physgun) :
+
+| Chemin | Rôle |
+|---|---|
+| `data/rebornstudio/cityliferp/` | **Toutes les données de votre serveur** (config, sauvegardes joueurs, addons) |
+| `data/rebornstudio/cityliferp/addons/` | Vos addons Lua ([guide](/addons/demarrage)) |
+| `data/rebornstudio/cityliferp/server_config.json` | Nom du serveur, MOTD, Discord |
+| `data/rebornstudio/cityliferp/admins.json` | Vos admins/modérateurs (SteamID64) |
+| `logs/` | Les logs du serveur (indispensables pour déboguer un addon) |
+
+<Warning>
+Ne modifiez jamais les fichiers du gamemode lui-même : tout se personnalise par les fichiers de `data/` et par les addons. C'est ce qui permet de mettre à jour sans rien perdre.
+</Warning>
+
+## Devenir admin sur son propre serveur
+
+Le **premier joueur qui se connecte** à un serveur sans staff reçoit automatiquement le rang SuperAdmin (failsafe propriétaire). Ensuite :
+
+- `/admin add <steamid64>` en jeu, ou
+- éditez `admins.json` puis redémarrez.

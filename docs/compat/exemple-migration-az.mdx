@@ -1,0 +1,124 @@
+---
+title: "Exemple réel : un serveur GMod migré de A à Z"
+description: "Session complète, commande par commande : 68 addons publics + une carte + un pack de modèles, du dossier garrysmod/ jusqu'au serveur s&box en ligne."
+---
+
+Ce guide n'est pas théorique : chaque commande ci-dessous a été exécutée telle quelle,
+et chaque chiffre vient de la vraie sortie des outils. Le serveur source est reconstitué
+à partir de contenu public : le gamemode [DarkRP de base (FPtje)](https://github.com/FPtje/DarkRP)
+et les 68 addons open-source de [OverlordAkise/darkrp-addons](https://github.com/OverlordAkise/darkrp-addons)
+(la collection « luctus » : chat, métiers, quêtes, taser, scoreboard, anti-cheat…).
+
+## 0. Le serveur source
+
+Un serveur GMod, c'est un dossier `garrysmod/`. On le reconstitue (ou vous partez du vôtre) :
+
+```bash
+git clone --depth 1 https://github.com/FPtje/DarkRP.git garrysmod/gamemodes/darkrp
+git clone --depth 1 https://github.com/OverlordAkise/darkrp-addons.git
+cp -r darkrp-addons/luctus_* garrysmod/addons/        # 68 addons
+# + votre cfg/server.cfg, sv.db, maps/…
+```
+
+## 1. La migration une-commande
+
+```bash
+python tools/reborn-migrate/reborn_migrate.py "./garrysmod" --out ./migration --name "Mon Serveur"
+```
+
+Résultat de cette session (68 addons réels) :
+
+| Étape | Sortie réelle |
+|---|---|
+| Addons | **68 convertis**, 67/68 avec logique serveur reconnue |
+| Points à surveiller | 63, presque tous « UI custom à recoder » (le rapport les liste par addon) |
+| Base `sv.db` | absente du serveur source, étape sautée proprement |
+| Modèles | **1 059 `models/*.mdl` recensés** → `models_referenced.txt` |
+| Config | `server.cfg` → `server_config.json` (nom, MOTD) |
+| Rapport | `RAPPORT_MIGRATION.md` généré |
+
+Les addons purs gameplay (`luctus_taser`, `luctus_whitelist`, `luctus_warn`,
+`luctus_statistics`…) passent sans remarque. Ceux à grosse interface
+(`luctus_scoreboard`, `luctus_wheel`) sont signalés : la logique migre, l'écran
+se refait en `vgui` (comptez l'essentiel du travail manuel là).
+
+## 2. La carte
+
+```bash
+python tools/map-import/map_import.py extract "gm_construct.bsp" --out ./map_out
+```
+
+Sortie réelle sur `gm_construct` :
+
+```
+✓ BSP version 20, en-tête lu
+✓ 599 assets embarqués extraits → embedded/
+✓ 1227 entités → entities.json  (33 spawns, 0 portes, 137 lumières)
+✓ plan d'import écrit : PLAN_IMPORT_CARTE.md
+```
+
+Le plan d'import vous dit quoi faire de la géométrie (BSPSource → Hammer s&box).
+Les spawns et lumières sont déjà exploitables tels quels.
+
+## 3. Les modèles 3D
+
+```bash
+python tools/gmod-import/gmod_import.py all 1338403285   # pack d'imprimantes DarkRP (Workshop)
+```
+
+Deux leçons apprises pendant cette session, pour vous éviter de chercher :
+
+- **SteamCMD télécharge souvent un `*_legacy.bin`** au lieu d'un `.gma` : c'est un
+  GMA compressé LZMA. L'outil le détecte et le décompresse tout seul, mais si vous
+  extrayez à la main, passez le `.bin` directement à `extract` (pas de renommage à faire).
+- Utilisez **`all`** (et non `extract` avec un glob) : l'outil localise lui-même le
+  fichier téléchargé, quel que soit son nom.
+
+Sur ce pack : extraction OK (« DarkRP Money, armor and ammo Printer », 55 fichiers),
+puis Crowbar → SMD et Blender → FBX si ces outils sont installés (chaque étape se
+dégrade proprement sinon). Le `manifest.json` final fait la traduction automatique :
+
+```json
+{ "models/props/xxx.mdl": "models/imports/xxx.vmdl" }
+```
+
+## 4. L'envoi sur le serveur
+
+Hébergeur type Physgun (SFTP, port 2022). Le user SFTP embarque l'UUID du serveur —
+prenez-le dans le panel, l'email seul ne suffit pas :
+
+```bash
+sftp -P 2022 vous@exemple.fr.962f142b@chi-s-game-19.physgun.com
+sftp> mkdir data/rebornstudio/cityliferp/addons
+sftp> put -r migration/addons/* data/rebornstudio/cityliferp/addons/
+```
+
+(287 fichiers / 38 Mo dans cette session. Astuce : un `.tar.gz` + extraction n'est
+possible que si votre hébergeur donne un vrai shell ; en SFTP pur, l'envoi
+récursif marche très bien.)
+
+## 5. Le gamemode + vérification
+
+<Steps>
+	<Step title="Basculez le jeu du serveur">
+		Panel de l'hébergeur → Game : `rebornstudio.cityliferp` (un serveur neuf part
+		souvent sur `facepunch.sandbox`). Redémarrez.
+	</Step>
+	<Step title="Vérifiez le chargement">
+		Console serveur : `addon_list` → chaque addon migré doit être `Loaded`.
+		Un addon en erreur est isolé et loggué, il ne fait jamais tomber le serveur.
+	</Step>
+	<Step title="Passez le rapport">
+		`RAPPORT_MIGRATION.md` : traitez les 🔴 (UI custom) un par un, testez en jeu.
+	</Step>
+</Steps>
+
+## Bilan honnête de cette session
+
+| Ça marche tout seul | Ça demande une main |
+|---|---|
+| 68/68 addons convertis en structure Reborn | 63 avertissements UI custom (surface/render) |
+| Logique serveur, hooks, commandes, net, sql | Refaire les écrans en `vgui` |
+| Carte : assets embarqués + entités + spawns | Géométrie via BSPSource + Hammer |
+| GMA/`_legacy.bin` extraits sans outil externe | Crowbar + Blender pour finir les `.mdl` |
+| Config serveur reprise | Le choix du jeu se fait dans le panel hébergeur |
